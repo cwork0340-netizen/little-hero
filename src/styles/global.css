@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  font-family: 'Noto Sans TC', 'Nunito', sans-serif;
+  background: #FFF7E8;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, input, textarea {
+  font-family: 'Noto Sans TC', 'Nunito', sans-serif;
+}
+
+/* ── Animations ── */
+@keyframes lhBounce {
+  0%, 100% { transform: translateY(0); }
+  40%       { transform: translateY(-16px); }
+  70%       { transform: translateY(-6px); }
+}
+@keyframes lhFloat {
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(-8px); }
+}
+@keyframes lhWiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25%      { transform: rotate(-10deg); }
+  75%      { transform: rotate(10deg); }
+}
+@keyframes lhFadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes lhPop {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+@keyframes lhGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 209, 102, 0.5); }
+  60%      { box-shadow: 0 0 0 14px rgba(255, 209, 102, 0); }
+}
+@keyframes lhStar {
+  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--sdx), var(--sdy)) scale(0); opacity: 0; }
+}
+@keyframes lhCardFlip {
+  0%   { transform: scaleX(1); }
+  50%  { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
+}
+@keyframes lhProgressFill {
+  from { width: 0%; }
+  to   { width: var(--target-width); }
+}
+
+/* ── Animation utility classes ── */
+.lh-bounce  { animation: lhBounce 0.6s ease; }
+.lh-float   { animation: lhFloat 3s ease-in-out infinite; }
+.lh-wiggle  { animation: lhWiggle 0.4s ease; }
+.lh-fadeup  { animation: lhFadeUp 0.45s ease both; }
+.lh-pop     { animation: lhPop 0.35s ease; }
+.lh-glow    { animation: lhGlow 1.8s ease 3; }
+.lh-flip    { animation: lhCardFlip 0.45s ease; }
+
+/* ── Scrollbar styling ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #D4B896; border-radius: 10px; }
