@@ -4,20 +4,18 @@ import { CHILDREN_INIT } from './data/tasks.js'
 import { loadState, saveState } from './utils/storage.js'
 
 import SelectChild from './pages/SelectChild.jsx'
-import MainScreen  from './pages/MainScreen.jsx'
+import MainScreen from './pages/MainScreenV2.jsx'
 import { AllDone, AchievementBook, ParentPIN, ParentDash } from './pages/AllScreens.jsx'
 
 export default function App() {
   const [children, setChildren] = useState(() => loadState()?.children || CHILDREN_INIT)
   const [activeId, setActiveId] = useState(null)
-  const [screen,   setScreen]   = useState('select')
-  const [navTab,   setNavTab]   = useState('home')
+  const [screen, setScreen] = useState('select')
+  const [navTab, setNavTab] = useState('home')
 
   const child = children.find(c => c.id === activeId) || children[0]
 
-  useEffect(() => {
-    saveState({ children })
-  }, [children])
+  useEffect(() => { saveState({ children }) }, [children])
 
   function completeTask(childId, taskId) {
     setChildren(prev => prev.map(c =>
@@ -30,9 +28,9 @@ export default function App() {
   function reorderTasks(childId, fromId, toId) {
     setChildren(prev => prev.map(c => {
       if (c.id !== childId) return c
-      const arr  = [...c.tasks]
+      const arr = [...c.tasks]
       const from = arr.findIndex(t => t.id === fromId)
-      const to   = arr.findIndex(t => t.id === toId)
+      const to = arr.findIndex(t => t.id === toId)
       if (from < 0 || to < 0) return c
       const [item] = arr.splice(from, 1)
       arr.splice(to, 0, item)
@@ -68,21 +66,9 @@ export default function App() {
         />
       )}
 
-      {screen === 'allDone' && (
-        <AllDone child={child} onHome={() => setScreen('main')} />
-      )}
-
-      {screen === 'achieve' && (
-        <AchievementBook child={child} onBack={() => setScreen('main')} />
-      )}
-
-      {screen === 'pin' && (
-        <ParentPIN
-          onUnlock={() => setScreen('parent')}
-          onBack={() => setScreen('main')}
-        />
-      )}
-
+      {screen === 'allDone' && <AllDone child={child} onHome={() => setScreen('main')} />}
+      {screen === 'achieve' && <AchievementBook child={child} onBack={() => setScreen('main')} />}
+      {screen === 'pin' && <ParentPIN onUnlock={() => setScreen('parent')} onBack={() => setScreen('main')} />}
       {screen === 'parent' && (
         <ParentDash
           children={children}
@@ -93,13 +79,7 @@ export default function App() {
       )}
 
       {!['pin', 'parent', 'select'].includes(screen) && (
-        <button
-          onClick={() => setScreen('pin')}
-          className="parent-lock-button"
-          aria-label="進入家長模式"
-        >
-          🔐
-        </button>
+        <button onClick={() => setScreen('pin')} className="parent-lock-button" aria-label="進入家長模式">🔐</button>
       )}
     </div>
   )
