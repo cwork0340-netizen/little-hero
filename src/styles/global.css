@@ -1,5 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
 
+:root {
+  --cream: #FFF7E8;
+  --cream-2: #FFF1D8;
+  --card: rgba(255, 255, 255, 0.88);
+  --brown: #4A3428;
+  --brown-2: #8B7566;
+  --sage: #BFE3C0;
+  --sage-dark: #5F9F66;
+  --honey: #FFD166;
+  --coral: #FFB6B9;
+  --sky: #A7D8FF;
+  --lavender: #CDB4DB;
+  --line: rgba(122, 91, 59, 0.14);
+  --shadow: 0 18px 45px rgba(83, 59, 36, 0.15);
+  --soft-shadow: 0 8px 24px rgba(83, 59, 36, 0.12);
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -7,14 +24,143 @@
 }
 
 html, body, #root {
-  height: 100%;
-  font-family: 'Noto Sans TC', 'Nunito', sans-serif;
-  background: #FFF7E8;
+  min-height: 100%;
+  font-family: 'Nunito', 'Noto Sans TC', sans-serif;
+  color: var(--brown);
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255, 209, 102, 0.28), transparent 28%),
+    radial-gradient(circle at 82% 18%, rgba(167, 216, 255, 0.35), transparent 30%),
+    linear-gradient(135deg, #FFF7E8 0%, #F8ECD8 52%, #EAF4DF 100%);
   -webkit-tap-highlight-color: transparent;
 }
 
 button, input, textarea {
-  font-family: 'Noto Sans TC', 'Nunito', sans-serif;
+  font-family: 'Nunito', 'Noto Sans TC', sans-serif;
+}
+
+button {
+  -webkit-appearance: none;
+}
+
+.app-shell {
+  width: min(1180px, 100vw);
+  min-height: 100vh;
+  margin: 0 auto;
+  position: relative;
+}
+
+.parent-lock-button {
+  position: fixed;
+  right: max(18px, calc((100vw - 1180px) / 2 + 18px));
+  bottom: 92px;
+  width: 54px;
+  height: 54px;
+  border: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #CDB4DB, #9D7AC1);
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(112, 76, 148, 0.28);
+  z-index: 100;
+}
+
+.storybook-frame {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 247, 232, 0.72);
+  border-left: 1px solid rgba(255,255,255,0.7);
+  border-right: 1px solid rgba(255,255,255,0.7);
+  box-shadow: 0 0 60px rgba(83, 59, 36, 0.09);
+}
+
+.storybook-card {
+  background: var(--card);
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  border-radius: 32px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+}
+
+.soft-button {
+  border: 0;
+  border-radius: 999px;
+  min-height: 56px;
+  padding: 0 24px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 900;
+  color: #fff;
+  background: linear-gradient(135deg, var(--coral), #FF8FA0);
+  box-shadow: 0 12px 24px rgba(255, 143, 160, 0.3);
+}
+
+.top-cloud {
+  background:
+    radial-gradient(circle at 12% 100%, rgba(255,255,255,.92) 0 20px, transparent 21px),
+    radial-gradient(circle at 38% 100%, rgba(255,255,255,.8) 0 30px, transparent 31px),
+    radial-gradient(circle at 64% 100%, rgba(255,255,255,.75) 0 23px, transparent 24px);
+}
+
+.world-scene {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.world-scene::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 70% 28%, rgba(255,255,255,0.75), transparent 15%),
+    linear-gradient(180deg, rgba(255,255,255,0.24), transparent 48%);
+  opacity: var(--world-light, 0.7);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.world-hill {
+  position: absolute;
+  left: -12%;
+  right: -12%;
+  bottom: -42px;
+  height: 160px;
+  border-radius: 50% 50% 0 0;
+  background: linear-gradient(180deg, rgba(191, 227, 192, .9), rgba(119, 176, 110, .82));
+  z-index: 1;
+}
+
+.scene-decoration {
+  position: absolute;
+  z-index: 2;
+  filter: drop-shadow(0 8px 12px rgba(74,52,40,.14));
+  user-select: none;
+}
+
+.character-stage {
+  width: clamp(132px, 18vw, 208px);
+  height: clamp(132px, 18vw, 208px);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle, rgba(255,255,255,.74), rgba(255,255,255,.2) 68%, transparent 70%);
+  position: relative;
+  z-index: 4;
+}
+
+.stat-pill {
+  min-width: 104px;
+  min-height: 58px;
+  padding: 8px 16px;
+  border-radius: 22px;
+  background: rgba(255,255,255,.82);
+  border: 1px solid rgba(255,255,255,.76);
+  box-shadow: var(--soft-shadow);
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 /* ── Animations ── */
@@ -58,8 +204,11 @@ button, input, textarea {
   from { width: 0%; }
   to   { width: var(--target-width); }
 }
+@keyframes lhSparkleDrift {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: .55; }
+  50% { transform: translateY(-10px) rotate(8deg); opacity: 1; }
+}
 
-/* ── Animation utility classes ── */
 .lh-bounce  { animation: lhBounce 0.6s ease; }
 .lh-float   { animation: lhFloat 3s ease-in-out infinite; }
 .lh-wiggle  { animation: lhWiggle 0.4s ease; }
@@ -67,8 +216,13 @@ button, input, textarea {
 .lh-pop     { animation: lhPop 0.35s ease; }
 .lh-glow    { animation: lhGlow 1.8s ease 3; }
 .lh-flip    { animation: lhCardFlip 0.45s ease; }
+.lh-sparkle { animation: lhSparkleDrift 2.8s ease-in-out infinite; }
 
-/* ── Scrollbar styling ── */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #D4B896; border-radius: 10px; }
+
+@media (max-width: 860px) {
+  .storybook-frame { min-height: 100dvh; }
+  .parent-lock-button { bottom: 86px; right: 16px; }
+}

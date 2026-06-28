@@ -9,53 +9,57 @@ const TABS = [
 
 export default function BottomNav({ active, onChange }) {
   return (
-    <div style={{
-      background: 'linear-gradient(180deg, #FFF7E8, #F3E8D0)',
-      borderTop: '2px solid #E8D5B8',
-      display: 'flex',
-      padding: '6px 0 4px',
+    <nav style={{
+      padding: '10px 22px 18px',
       flexShrink: 0,
     }}>
-      {TABS.map(tab => (
-        <button
-          key={tab.id}
-          onClick={() => onChange(tab.id)}
-          style={{
-            flex: 1,
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 2,
-            padding: '4px 0',
-            fontFamily: 'inherit',
-          }}
-        >
-          <div style={{
-            width: 44,
-            height: 44,
-            borderRadius: 14,
-            background: active === tab.id ? '#FFB6B9' : 'transparent',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 20,
-            boxShadow: active === tab.id ? '0 3px 10px rgba(255,182,185,.5)' : 'none',
-            transition: 'all .2s',
-          }}>
-            {tab.icon}
-          </div>
-          <span style={{
-            fontSize: 10,
-            fontWeight: active === tab.id ? 800 : 600,
-            color: active === tab.id ? '#4A3428' : '#8B7566',
-          }}>
-            {tab.label}
-          </span>
-        </button>
-      ))}
-    </div>
+      <div style={{
+        maxWidth: 620,
+        margin: '0 auto',
+        minHeight: 76,
+        background: 'rgba(255,255,255,.82)',
+        border: '1px solid rgba(255,255,255,.78)',
+        borderRadius: 999,
+        display: 'flex',
+        padding: 8,
+        boxShadow: '0 16px 34px rgba(74,52,40,.14)',
+        backdropFilter: 'blur(14px)',
+      }}>
+        {TABS.map(tab => {
+          const selected = active === tab.id
+          return (
+            <button
+              key={tab.id}
+              onClick={() => onChange(tab.id)}
+              style={{
+                flex: 1,
+                background: selected ? 'linear-gradient(135deg, #FFB6B9, #FFD166)' : 'transparent',
+                border: 'none',
+                borderRadius: 999,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                padding: '8px 10px',
+                fontFamily: 'inherit',
+                color: selected ? '#4A3428' : '#8B7566',
+                boxShadow: selected ? '0 10px 20px rgba(255,182,185,.28)' : 'none',
+                transition: 'all .2s ease',
+              }}
+            >
+              <span style={{ fontSize: 24 }}>{tab.icon}</span>
+              <span style={{
+                fontSize: 13,
+                fontWeight: selected ? 900 : 800,
+                display: selected ? 'inline' : 'none',
+              }}>
+                {tab.label}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+    </nav>
   )
 }
