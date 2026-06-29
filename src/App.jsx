@@ -3,8 +3,8 @@ import { useState, useEffect } from 'react'
 import { CHILDREN_INIT } from './data/tasks.js'
 import { loadState, saveState } from './utils/storage.js'
 
-import SelectChild from './pages/SelectChild.jsx'
-import MainScreen  from './pages/MainScreen.jsx'
+import SelectChild   from './pages/SelectChild.jsx'
+import MainScreenV3  from './pages/MainScreenV3.jsx'
 import { AllDone, AchievementBook, ParentPIN, ParentDash } from './pages/AllScreens.jsx'
 
 export default function App() {
@@ -58,7 +58,7 @@ export default function App() {
       )}
 
       {screen === 'main' && (
-        <MainScreen
+        <MainScreenV3
           child={child}
           onTaskComplete={completeTask}
           onReorderTasks={reorderTasks}

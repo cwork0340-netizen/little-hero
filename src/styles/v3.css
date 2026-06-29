@@ -1,0 +1,184 @@
+/* v3.css — Little Hero V3 storybook home styles */
+
+.v3-frame {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #EAF6FF 0%, #FFF7E8 38%, #F3ECD6 100%);
+  overflow-x: hidden;
+  width: 100%;
+}
+
+.v3-header {
+  padding: 14px 18px 8px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.v3-stat-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.v3-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 6px 16px 14px;
+  overflow-y: auto;
+}
+
+/* ── Forest scene ── */
+.v3-scene {
+  position: relative;
+  flex-shrink: 0;
+  height: clamp(300px, 52vh, 540px);
+  border-radius: 30px;
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(180deg, #BFE4FF 0%, #DCF3D6 58%, #A9DD93 100%);
+  box-shadow: inset 0 -30px 70px rgba(74,52,40,.08), 0 18px 40px rgba(74,52,40,.16);
+}
+
+.v3-scene-layer {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  display: block;
+}
+
+.v3-scene-sun     { top: 4%; right: 6%; width: clamp(56px, 11vw, 96px); z-index: 1; }
+.v3-scene-clouds  { top: 0; left: 0; width: 78%; max-width: 420px; opacity: .95; z-index: 1; }
+.v3-scene-treehouse { left: 1%; bottom: 14%; width: clamp(110px, 26vw, 220px); z-index: 3; }
+.v3-scene-river   { left: 0; bottom: 0; width: 100%; z-index: 1; }
+.v3-scene-bridge  { left: 32%; bottom: 9%; width: clamp(110px, 24vw, 200px); z-index: 2; opacity: .92; }
+.v3-scene-grass   { left: 0; bottom: -6px; width: 100%; z-index: 4; }
+.v3-scene-flowers { right: 4%; bottom: 4%; width: clamp(90px, 20vw, 170px); z-index: 5; }
+.v3-scene-crystal { right: 16%; bottom: 16%; width: clamp(36px, 8vw, 58px); z-index: 5; }
+
+.v3-scene-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 6;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.78);
+  color: #5B4638;
+  font-size: 12px;
+  font-weight: 900;
+  box-shadow: 0 6px 16px rgba(74,52,40,.1);
+}
+
+.v3-bear-wrap {
+  position: absolute;
+  left: 50%;
+  bottom: 16%;
+  transform: translateX(-50%);
+  z-index: 7;
+  width: clamp(150px, 32vw, 240px);
+  cursor: pointer;
+}
+.v3-bear-wrap img {
+  width: 100%;
+  display: block;
+  filter: drop-shadow(0 16px 16px rgba(74,52,40,.18));
+}
+
+.v3-bubble {
+  position: absolute;
+  top: 14%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 7;
+  max-width: min(78%, 320px);
+  background: rgba(255,255,255,.92);
+  border-radius: 20px 20px 20px 6px;
+  padding: 10px 16px;
+  color: #4A3428;
+  font-size: clamp(12px, 2.2vw, 14px);
+  font-weight: 800;
+  line-height: 1.4;
+  box-shadow: 0 10px 24px rgba(74,52,40,.12);
+  text-align: center;
+}
+
+.v3-scene-foot {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 8;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.v3-map-btn {
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 16px;
+  border: 2px solid rgba(122,91,59,.18);
+  background: rgba(255,255,255,.88);
+  box-shadow: 0 8px 18px rgba(74,52,40,.12);
+  color: #4A3428;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.v3-sparkle {
+  position: absolute;
+  width: 18px;
+  z-index: 6;
+  animation: lhSparkleDrift 2.8s ease-in-out infinite;
+}
+
+/* ── Task list card ── */
+.v3-task-card {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.v3-task-head {
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.v3-task-list {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: linear-gradient(180deg, rgba(255,247,232,.55), rgba(255,255,255,.2));
+}
+
+.v3-task-foot {
+  padding: 12px 16px 16px;
+  border-top: 1px solid var(--line);
+}
+
+@media (max-width: 480px) {
+  .v3-header { padding: 12px 14px 6px; }
+  .v3-main { padding: 4px 12px 12px; }
+  .v3-bubble { top: 10%; }
+}
+
+@media (min-width: 700px) and (orientation: landscape) {
+  .v3-scene { height: clamp(280px, 46vh, 480px); }
+}
