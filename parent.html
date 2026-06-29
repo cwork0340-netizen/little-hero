@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Little Hero — 家長模式</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+/* ── Design System（與首頁一致）── */
+:root {
+  --color-cream:       #FFF7ED;
+  --color-cream-dark:  #F5ECD8;
+  --color-sage:        #7EBC8A;
+  --color-sage-light:  #A8D4AE;
+  --color-sage-dark:   #5A9A68;
+  --color-brown:       #8D6E63;
+  --color-brown-light: #C4956A;
+  --color-sky:         #A7D8F0;
+  --color-sky-light:   #D6EFFA;
+  --color-peach:       #F8A5C2;
+  --color-peach-light: #FDD5E5;
+  --color-lavender:    #BCC7E8;
+  --color-yellow:      #FFD166;
+  --color-yellow-dark: #F4B942;
+  --color-white:       #FFFFFF;
+  --color-text:        #5C4A3A;
+  --color-text-light:  #9E8A78;
+  --color-locked:      #C8BDB5;
+  --color-danger:      #E57373;
+  --color-danger-light:#FFEBEE;
+
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px;
+  --sp-5:20px; --sp-6:24px; --sp-8:32px; --sp-10:40px; --sp-12:48px;
+
+  --r-sm:12px; --r-md:20px; --r-lg:28px; --r-xl:36px; --r-full:9999px;
+
+  --shadow-soft:  0 4px 24px rgba(140,110,90,0.10);
+  --shadow-card:  0 6px 32px rgba(140,110,90,0.13);
+  --shadow-float: 0 12px 40px rgba(140,110,90,0.18);
+
+  --font-main: 'Nunito','Noto Sans TC',sans-serif;
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+
+body{
+  font-family:var(--font-main);
+  background:var(--color-cream);
+  color:var(--color-text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+.app{
+  max-width:420px;
+  margin:0 auto;
+  min-height:100vh;
+  background:var(--color-cream);
+  position:relative;
+}
+
+/* ══════════════════════════════
+   SCREENS（頁面切換）
+══════════════════════════════ */
+.screen{ display:none; min-height:100vh; }
+.screen.active{ display:block; }
+
+/* ══════════════════════════════
+   PIN SCREEN
+══════════════════════════════ */
+.pin-screen{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+  padding:var(--sp-8) var(--sp-6);
+  background: linear-gradient(160deg, #EBF5EC 0%, var(--color-cream) 60%);
+}
+
+.pin-icon{
+  font-size:56px;
+  margin-bottom:var(--sp-4);
+  animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes popIn{
+  from{ transform:scale(0.5); opacity:0; }
+  to  { transform:scale(1);   opacity:1; }
+}
+
+.pin-title{
+  font-size:22px;
+  font-weight:900;
+  color:var(--color-text);
+  margin-bottom:var(--sp-2);
+}
+
+.pin-sub{
+  font-size:14px;
+  font-weight:600;
+  color:var(--color-text-light);
+  margin-bottom:var(--sp-8);
+  text-align:center;
+}
+
+/* 四格顯示 */
+.pin-dots{
+  display:flex;
+  gap:var(--sp-4);
+  margin-bottom:var(--sp-8);
+}
+
+.pin-dot{
+  width:20px; height:20px;
+  border-radius:var(--r-full);
+  border:2.5px solid var(--color-sage-light);
+  background:transparent;
+  transition:all 0.2s cubic-bezier(.34,1.56,.64,1);
+}
+
+.pin-dot.filled{
+  background:var(--color-sage);
+  border-color:var(--color-sage);
+  transform:scale(1.15);
+}
+
+.pin-dot.error{
+  border-color:var(--color-danger);
+  background:var(--color-danger);
+  animation:shake 0.4s ease;
+}
+
+@keyframes shake{
+  0%,100%{ transform:translateX(0); }
+  20%    { transform:translateX(-6px); }
+  40%    { transform:translateX(6px); }
+  60%    { transform:translateX(-4px); }
+  80%    { transform:translateX(4px); }
+}
+
+/* 數字鍵盤 */
+.pin-keypad{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:var(--sp-3);
+  width:260px;
+}
+
+.key-btn{
+  height:64px;
+  border-radius:var(--r-lg);
+  border:none;
+  background:var(--color-white);
+  font-family:var(--font-main);
+  font-size:24px;
+  font-weight:800;
+  color:var(--color-text);
+  cursor:pointer;
+  box-shadow:var(--shadow-soft);
+  transition:transform 0.1s, box-shadow 0.1s;
+  display:flex; align-items:center; justify-content:center;
+}
+
+.key-btn:active{
+  transform:scale(0.93);
+  box-shadow:none;
+}
+
+.key-btn.key-zero{ grid-column:2; }
+.key-btn.key-del {
+  background:var(--color-cream-dark);
+  font-size:20px;
+}
+.key-btn.key-empty{ background:transparent; box-shadow:none; cursor:default; }
+
+.pin-hint{
+  margin-top:var(--sp-6);
+  font-size:12px;
+  font-weight:600;
+  color:var(--color-text-light);
+}
+
+.pin-error-msg{
+  margin-top:var(--sp-3);
+  font-size:13px;
+  font-weight:700;
+  color:var(--color-danger);
+  opacity:0;
+  transition:opacity 0.3s;
+}
+.pin-error-msg.show{ opacity:1; }
+
+/* ══════════════════════════════
+   PARENT MAIN SCREEN
+══════════════════════════════ */
+.parent-header{
+  padding:var(--sp-5) var(--sp-5) var(--sp-4);
+  display:flex;
+  align-items:center;
+  gap:var(--sp-3);
+  background:var(--color-white);
+  box-shadow:var(--shadow-soft);
+}
+
+.back-btn{
+  width:40px; height:40px;
+  border-radius:var(--r-full);
+  border:none;
+  background:var(--color-cream);
+  cursor:pointer;
+  font-size:18px;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+
+.parent-header-info{ flex:1; }
+
+.parent-header-title{
+  font-size:18px;
+  font-weight:900;
+  color:var(--color-text);
+}
+
+.parent-header-sub{
+  font-size:12px;
+  font-weight:600;
+  color:var(--color-text-light);
+  margin-top:2px;
+}
+
+.logout-btn{
+  padding:8px 16px;
+  border-radius:var(--r-full);
+  border:none;
+  background:var(--color-cream-dark);
+  font-family:var(--font-main);
+  font-size:12px;
+  font-weight:700;
+  color:var(--color-text-light);
+  cursor:pointer;
+}
+
+/* 孩子資訊卡 */
+.child-card{
+  margin:var(--sp-5) var(--sp-5) 0;
+  background:linear-gradient(135deg, var(--color-sage) 0%, var(--color-sage-dark) 100%);
+  border-radius:var(--r-xl);
+  padding:var(--sp-5) var(--sp-6);
+  display:flex;
+  align-items:center;
+  gap:var(--sp-4);
+  box-shadow:var(--shadow-float);
+  color:white;
+}
+
+.child-avatar{
+  width:56px; height:56px;
+  border-radius:var(--r-full);
+  background:rgba(255,255,255,0.25);
+  display:flex; align-items:center; justify-content:center;
+  font-size:26px;
+  flex-shrink:0;
+}
+
+.child-name{
+  font-size:20px;
+  font-weight:900;
+  margin-bottom:4px;
+}
+
+.child-stats{
+  display:flex;
+  gap:var(--sp-4);
+  font-size:13px;
+  font-weight:700;
+  opacity:0.9;
+}
+
+.child-stat{
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+
+/* 功能選單 Grid */
+.menu-section{
+  padding:var(--sp-5) var(--sp-5) var(--sp-12);
+}
+
+.menu-section-title{
+  font-size:13px;
+  font-weight:700;
+  color:var(--color-text-light);
+  margin-bottom:var(--sp-3);
+  padding:0 var(--sp-1);
+}
+
+.menu-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:var(--sp-3);
+}
+
+.menu-card{
+  background:var(--color-white);
+  border-radius:var(--r-lg);
+  padding:var(--sp-5);
+  cursor:pointer;
+  box-shadow:var(--shadow-soft);
+  transition:transform 0.15s, box-shadow 0.15s;
+  display:flex;
+  flex-direction:column;
+  gap:var(--sp-2);
+  position:relative;
+  overflow:hidden;
+}
+
+.menu-card:active{
+  transform:scale(0.97);
+  box-shadow:none;
+}
+
+.menu-card-accent{
+  position:absolute;
+  top:0; right:0;
+  width:48px; height:48px;
+  border-radius:0 var(--r-lg) 0 var(--r-xl);
+  opacity:0.15;
+}
+
+.menu-card-icon{ font-size:28px; }
+
+.menu-card-title{
+  font-size:15px;
+  font-weight:800;
+  color:var(--color-text);
+  line-height:1.2;
+}
+
+.menu-card-desc{
+  font-size:11px;
+  font-weight:600;
+  color:var(--color-text-light);
+  line-height:1.4;
+}
+
+.menu-card-badge{
+  position:absolute;
+  top:var(--sp-3);
+  right:var(--sp-3);
+  background:var(--color-peach);
+  color:white;
+  font-size:10px;
+  font-weight:800;
+  padding:2px 8px;
+  border-radius:var(--r-full);
+}
+
+/* ══════════════════════════════
+   TASK MANAGER SCREEN
+══════════════════════════════ */
+.sub-header{
+  padding:var(--sp-5) var(--sp-5) var(--sp-4);
+  display:flex;
+  align-items:center;
+  gap:var(--sp-3);
+  background:var(--color-white);
+  box-shadow:var(--shadow-soft);
+}
+
+.sub-header-title{
+  flex:1;
+  font-size:18px;
+  font-weight:900;
+  color:var(--color-text);
+}
+
+.add-task-btn{
+  padding:8px 18px;
+  border-radius:var(--r-full);
+  border:none;
+  background:var(--color-sage);
+  font-family:var(--font-main);
+  font-size:13px;
+  font-weight:800;
+  color:white;
+  cursor:pointer;
+  box-shadow:var(--shadow-soft);
+  transition:transform 0.1s;
+}
+.add-task-btn:active{ transform:scale(0.95); }
+
+/* 任務清單（管理版）*/
+.task-manager-list{
+  padding:var(--sp-4) var(--sp-4) 100px;
+  display:flex;
+  flex-direction:column;
+  gap:var(--sp-3);
+}
+
+.task-manage-card{
+  background:var(--color-white);
+  border-radius:var(--r-lg);
+  padding:var(--sp-4) var(--sp-5);
+  display:flex;
+  align-items:center;
+  gap:var(--sp-3);
+  box-shadow:var(--shadow-soft);
+  transition:transform 0.2s;
+}
+
+.task-manage-icon{
+  width:44px; height:44px;
+  border-radius:var(--r-md);
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px;
+  flex-shrink:0;
+}
+
+.task-manage-info{ flex:1; min-width:0; }
+
+.task-manage-title{
+  font-size:15px;
+  font-weight:800;
+  color:var(--color-text);
+}
+
+.task-manage-meta{
+  font-size:11px;
+  font-weight:600;
+  color:var(--color-text-light);
+  margin-top:2px;
+}
+
+.task-manage-right{
+  display:flex;
+  align-items:center;
+  gap:var(--sp-3);
+}
+
+/* Toggle switch */
+.toggle{
+  position:relative;
+  width:44px; height:24px;
+  flex-shrink:0;
+}
+.toggle input{ opacity:0; width:0; height:0; }
+.toggle-track{
+  position:absolute;
+  inset:0;
+  border-radius:var(--r-full);
+  background:var(--color-locked);
+  cursor:pointer;
+  transition:background 0.25s;
+}
+.toggle input:checked + .toggle-track{ background:var(--color-sage); }
+.toggle-track::after{
+  content:'';
+  position:absolute;
+  width:18px; height:18px;
+  border-radius:50%;
+  background:white;
+  top:3px; left:3px;
+  transition:transform 0.25s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 1px 4px rgba(0,0,0,0.15);
+}
+.toggle input:checked + .toggle-track::after{
+  transform:translateX(20px);
+}
+
+.delete-btn{
+  width:32px; height:32px;
+  border-radius:var(--r-full);
+  border:none;
+  background:var(--color-danger-light);
+  color:var(--color-danger);
+  font-size:16px;
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:transform 0.1s;
+}
+.delete-btn:active{ transform:scale(0.9); }
+
+/* ══════════════════════════════
+   ADD TASK SHEET（底部滑出）
+══════════════════════════════ */
+.sheet-overlay{
+  position:fixed; inset:0;
+  background:rgba(92,74,58,0.35);
+  z-index:200;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.3s;
+  backdrop-filter:blur(3px);
+}
+.sheet-overlay.show{ opacity:1; pointer-events:auto; }
+
+.add-sheet{
+  position:fixed;
+  bottom:0; left:50%; transform:translateX(-50%) translateY(100%);
+  width:100%; max-width:420px;
+  background:var(--color-white);
+  border-radius:var(--r-xl) var(--r-xl) 0 0;
+  padding:var(--sp-6) var(--sp-6) calc(var(--sp-8) + env(safe-area-inset-bottom));
+  z-index:201;
+  transition:transform 0.35s cubic-bezier(.34,1.2,.64,1);
+  box-shadow:0 -8px 40px rgba(140,110,90,0.15);
+}
+.add-sheet.show{ transform:translateX(-50%) translateY(0); }
+
+.sheet-handle{
+  width:40px; height:4px;
+  border-radius:var(--r-full);
+  background:var(--color-cream-dark);
+  margin:0 auto var(--sp-5);
+}
+
+.sheet-title{
+  font-size:18px;
+  font-weight:900;
+  color:var(--color-text);
+  margin-bottom:var(--sp-5);
+}
+
+/* Icon 選擇器 */
+.icon-picker{
+  display:flex;
+  gap:var(--sp-2);
+  flex-wrap:wrap;
+  margin-bottom:var(--sp-5);
+}
+
+.icon-option{
+  width:44px; height:44px;
+  border-radius:var(--r-md);
+  border:2.5px solid transparent;
+  background:var(--color-cream-dark);
+  font-size:22px;
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:all 0.15s;
+}
+.icon-option.selected{
+  border-color:var(--color-sage);
+  background:var(--color-sage-light);
+  transform:scale(1.1);
+}
+
+/* 輸入框 */
+.field-label{
+  font-size:13px;
+  font-weight:700;
+  color:var(--color-text-light);
+  margin-bottom:var(--sp-2);
+}
+
+.field-input{
+  width:100%;
+  padding:14px var(--sp-4);
+  border-radius:var(--r-md);
+  border:2px solid var(--color-cream-dark);
+  background:var(--color-cream);
+  font-family:var(--font-main);
+  font-size:15px;
+  font-weight:700;
+  color:var(--color-text);
+  outline:none;
+  margin-bottom:var(--sp-4);
+  transition:border-color 0.2s;
+}
+.field-input:focus{ border-color:var(--color-sage-light); }
+
+/* 星星點數選擇 */
+.stars-row{
+  display:flex;
+  gap:var(--sp-2);
+  margin-bottom:var(--sp-6);
+}
+.stars-option{
+  flex:1;
+  padding:10px;
+  border-radius:var(--r-md);
+  border:2px solid var(--color-cream-dark);
+  background:var(--color-cream);
+  font-family:var(--font-main);
+  font-size:13px;
+  font-weight:800;
+  color:var(--color-text-light);
+  cursor:pointer;
+  text-align:center;
+  transition:all 0.15s;
+}
+.stars-option.selected{
+  border-color:var(--color-yellow);
+  background:#FFF8E1;
+  color:var(--color-yellow-dark);
+}
+
+.sheet-confirm-btn{
+  width:100%;
+  padding:16px;
+  border-radius:var(--r-lg);
+  border:none;
+  background:var(--color-sage);
+  font-family:var(--font-main);
+  font-size:16px;
+  font-weight:900;
+  color:white;
+  cursor:pointer;
+  box-shadow:var(--shadow-card);
+  transition:transform 0.1s;
+}
+.sheet-confirm-btn:active{ transform:scale(0.98); }
+
+/* ══════════════════════════════
+   REWARD OPTIONS
+══════════════════════════════ */
+.reward-options {
+  display:flex;
+  gap:var(--sp-2);
+}
+
+.reward-option {
+  flex:1;
+  background:var(--color-white);
+  border-radius:var(--r-lg);
+  border:2.5px solid var(--color-cream-dark);
+  padding:var(--sp-4) var(--sp-2);
+  text-align:center;
+  cursor:pointer;
+  transition:all 0.2s cubic-bezier(.34,1.3,.64,1);
+  box-shadow:var(--shadow-soft);
+}
+
+.reward-option:active { transform:scale(0.95); }
+
+.reward-option.selected {
+  border-color:var(--color-yellow);
+  background:linear-gradient(160deg,#FFF8E1,#FFFDE7);
+  transform:scale(1.05);
+  box-shadow:0 6px 20px rgba(244,185,66,0.25);
+}
+
+.reward-option-num {
+  font-size:26px;
+  font-weight:900;
+  color:var(--color-text);
+  line-height:1;
+}
+
+.reward-option.selected .reward-option-num { color:#E65100; }
+
+.reward-option-label {
+  font-size:11px;
+  font-weight:700;
+  color:var(--color-text-light);
+  margin-top:2px;
+}
+
+.reward-option-desc {
+  font-size:10px;
+  font-weight:600;
+  color:var(--color-locked);
+  margin-top:4px;
+}
+
+.reward-option.selected .reward-option-desc { color:var(--color-yellow-dark); }
+
+/* ══════════════════════════════
+   TOAST 提示
+══════════════════════════════ */
+.toast{
+  position:fixed;
+  bottom:32px; left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:var(--color-text);
+  color:white;
+  padding:12px 24px;
+  border-radius:var(--r-full);
+  font-size:14px;
+  font-weight:700;
+  opacity:0;
+  pointer-events:none;
+  z-index:300;
+  transition:all 0.3s cubic-bezier(.34,1.3,.64,1);
+  white-space:nowrap;
+}
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ══ SCREEN 1：PIN 輸入 ══ -->
+  <div class="screen active" id="screenPin">
+    <div class="pin-screen">
+      <div class="pin-icon">🔐</div>
+      <div class="pin-title">家長模式</div>
+      <div class="pin-sub">請輸入 4 位數 PIN 碼<br>（初始密碼：1234）</div>
+
+      <div class="pin-dots">
+        <div class="pin-dot" id="dot-0"></div>
+        <div class="pin-dot" id="dot-1"></div>
+        <div class="pin-dot" id="dot-2"></div>
+        <div class="pin-dot" id="dot-3"></div>
+      </div>
+
+      <div class="pin-keypad">
+        <button class="key-btn" onclick="pressKey('1')">1</button>
+        <button class="key-btn" onclick="pressKey('2')">2</button>
+        <button class="key-btn" onclick="pressKey('3')">3</button>
+        <button class="key-btn" onclick="pressKey('4')">4</button>
+        <button class="key-btn" onclick="pressKey('5')">5</button>
+        <button class="key-btn" onclick="pressKey('6')">6</button>
+        <button class="key-btn" onclick="pressKey('7')">7</button>
+        <button class="key-btn" onclick="pressKey('8')">8</button>
+        <button class="key-btn" onclick="pressKey('9')">9</button>
+        <button class="key-btn key-empty"></button>
+        <button class="key-btn key-zero" onclick="pressKey('0')">0</button>
+        <button class="key-btn key-del"  onclick="pressDelete()">⌫</button>
+      </div>
+
+      <div class="pin-hint">三次錯誤將鎖定 30 秒</div>
+      <div class="pin-error-msg" id="pinErrorMsg">PIN 碼錯誤，請再試一次</div>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 2：家長主選單 ══ -->
+  <div class="screen" id="screenMain">
+
+    <header class="parent-header">
+      <button class="back-btn" onclick="goBack()">←</button>
+      <div class="parent-header-info">
+        <div class="parent-header-title">家長模式</div>
+        <div class="parent-header-sub">管理孩子的冒險世界</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">登出</button>
+    </header>
+
+    <!-- 孩子資訊卡 -->
+    <div class="child-card">
+      <div class="child-avatar">🧒</div>
+      <div>
+        <div class="child-name">小宇</div>
+        <div class="child-stats">
+          <div class="child-stat">⭐ 23 顆星</div>
+          <div class="child-stat">🔥 5 天連續</div>
+          <div class="child-stat">✅ 今日 2/4</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 功能選單 -->
+    <div class="menu-section">
+      <div class="menu-section-title">設定管理</div>
+      <div class="menu-grid">
+
+        <div class="menu-card" onclick="goToTaskManager()">
+          <div class="menu-card-accent" style="background:var(--color-sage);"></div>
+          <div class="menu-card-icon">📋</div>
+          <div class="menu-card-title">任務管理</div>
+          <div class="menu-card-desc">新增、刪除、開關今日任務</div>
+          <div class="menu-card-badge">4 個任務</div>
+        </div>
+
+        <div class="menu-card" onclick="goToRewardSetting()">
+          <div class="menu-card-accent" style="background:var(--color-peach);"></div>
+          <div class="menu-card-icon">🎁</div>
+          <div class="menu-card-title">獎勵設定</div>
+          <div class="menu-card-desc">設定連續幾天得印章</div>
+          <div class="menu-card-badge" id="rewardBadge">每 3 天</div>
+        </div>
+
+        <div class="menu-card" onclick="showToast('👤 孩子管理（M2 開放）')">
+          <div class="menu-card-accent" style="background:var(--color-sky);"></div>
+          <div class="menu-card-icon">👤</div>
+          <div class="menu-card-title">孩子管理</div>
+          <div class="menu-card-desc">修改名字、頭像、角色</div>
+        </div>
+
+        <div class="menu-card" onclick="showToast('📊 點數紀錄（M2 開放）')">
+          <div class="menu-card-accent" style="background:var(--color-yellow);"></div>
+          <div class="menu-card-icon">📊</div>
+          <div class="menu-card-title">點數紀錄</div>
+          <div class="menu-card-desc">查看每日完成歷史</div>
+        </div>
+
+        <div class="menu-card" onclick="showToast('🔔 通知設定（M2 開放）')">
+          <div class="menu-card-accent" style="background:var(--color-lavender);"></div>
+          <div class="menu-card-icon">🔔</div>
+          <div class="menu-card-title">通知設定</div>
+          <div class="menu-card-desc">提醒時間與推播管理</div>
+        </div>
+
+        <div class="menu-card" onclick="showToast('💾 備份還原（M2 開放）')">
+          <div class="menu-card-accent" style="background:var(--color-brown-light);"></div>
+          <div class="menu-card-icon">💾</div>
+          <div class="menu-card-title">備份還原</div>
+          <div class="menu-card-desc">資料備份與裝置轉移</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 4：獎勵設定 ══ -->
+  <div class="screen" id="screenReward">
+
+    <header class="sub-header">
+      <button class="back-btn" onclick="showScreen('screenMain')">←</button>
+      <div class="sub-header-title">獎勵設定</div>
+    </header>
+
+    <div style="padding:var(--sp-5);">
+
+      <!-- 說明卡 -->
+      <div style="background:linear-gradient(135deg,#FFF3E0,#FFF8E1);border-radius:var(--r-lg);padding:var(--sp-5);margin-bottom:var(--sp-5);border:2px solid var(--color-yellow);box-shadow:var(--shadow-soft);">
+        <div style="font-size:28px;margin-bottom:var(--sp-2);">🎁</div>
+        <div style="font-size:15px;font-weight:800;color:var(--color-text);margin-bottom:var(--sp-2);">連續完成任務 → 獲得印章</div>
+        <div style="font-size:13px;font-weight:600;color:var(--color-text-light);line-height:1.6;">
+          孩子每天完成所有任務，連續達到設定天數，<br>就會自動獲得一個集點印章。
+        </div>
+      </div>
+
+      <!-- 天數選擇 -->
+      <div style="font-size:13px;font-weight:700;color:var(--color-text-light);margin-bottom:var(--sp-3);">每連續幾天完成，獲得一個印章？</div>
+
+      <div class="reward-options" id="rewardOptions">
+        <div class="reward-option" data-days="1" onclick="selectRewardDays(this,1)">
+          <div class="reward-option-num">1</div>
+          <div class="reward-option-label">天</div>
+          <div class="reward-option-desc">每天都得</div>
+        </div>
+        <div class="reward-option" data-days="2" onclick="selectRewardDays(this,2)">
+          <div class="reward-option-num">2</div>
+          <div class="reward-option-label">天</div>
+          <div class="reward-option-desc">輕鬆達成</div>
+        </div>
+        <div class="reward-option selected" data-days="3" onclick="selectRewardDays(this,3)">
+          <div class="reward-option-num">3</div>
+          <div class="reward-option-label">天</div>
+          <div class="reward-option-desc">預設推薦</div>
+        </div>
+        <div class="reward-option" data-days="5" onclick="selectRewardDays(this,5)">
+          <div class="reward-option-num">5</div>
+          <div class="reward-option-label">天</div>
+          <div class="reward-option-desc">一週挑戰</div>
+        </div>
+        <div class="reward-option" data-days="7" onclick="selectRewardDays(this,7)">
+          <div class="reward-option-num">7</div>
+          <div class="reward-option-label">天</div>
+          <div class="reward-option-desc">最高挑戰</div>
+        </div>
+      </div>
+
+      <!-- 目前設定預覽 -->
+      <div id="rewardPreview" style="margin-top:var(--sp-5);background:var(--color-white);border-radius:var(--r-lg);padding:var(--sp-5);box-shadow:var(--shadow-soft);text-align:center;">
+        <div style="font-size:13px;font-weight:700;color:var(--color-text-light);margin-bottom:var(--sp-2);">目前設定</div>
+        <div style="font-size:18px;font-weight:900;color:var(--color-text);" id="previewText">
+          每連續 <span style="color:#E65100;font-size:26px;">3</span> 天完成 → 獲得 ⭐ 一個印章
+        </div>
+      </div>
+
+      <!-- 儲存按鈕 -->
+      <button onclick="saveRewardSetting()"
+        style="margin-top:var(--sp-5);width:100%;padding:16px;border-radius:var(--r-lg);border:none;background:var(--color-sage);font-family:var(--font-main);font-size:16px;font-weight:900;color:white;cursor:pointer;box-shadow:var(--shadow-card);">
+        ✓ 儲存設定
+      </button>
+
+    </div>
+  </div>
+  <div class="screen" id="screenTasks">
+
+    <header class="sub-header">
+      <button class="back-btn" onclick="showScreen('screenMain')">←</button>
+      <div class="sub-header-title">任務管理</div>
+      <button class="add-task-btn" onclick="openAddSheet()">＋ 新增</button>
+    </header>
+
+    <div class="task-manager-list" id="taskManagerList">
+      <!-- 由 JS 產生 -->
+    </div>
+
+  </div>
+
+</div><!-- /.app -->
+
+<!-- Add Task Sheet -->
+<div class="sheet-overlay" id="sheetOverlay" onclick="closeAddSheet()"></div>
+<div class="add-sheet" id="addSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">新增任務</div>
+
+  <div class="field-label">選擇圖示</div>
+  <div class="icon-picker" id="iconPicker">
+    <div class="icon-option selected" data-icon="🎒" onclick="selectIcon(this)">🎒</div>
+    <div class="icon-option" data-icon="🪥" onclick="selectIcon(this)">🪥</div>
+    <div class="icon-option" data-icon="📖" onclick="selectIcon(this)">📖</div>
+    <div class="icon-option" data-icon="👟" onclick="selectIcon(this)">👟</div>
+    <div class="icon-option" data-icon="🍱" onclick="selectIcon(this)">🍱</div>
+    <div class="icon-option" data-icon="🎨" onclick="selectIcon(this)">🎨</div>
+    <div class="icon-option" data-icon="🎹" onclick="selectIcon(this)">🎹</div>
+    <div class="icon-option" data-icon="🚿" onclick="selectIcon(this)">🚿</div>
+    <div class="icon-option" data-icon="💤" onclick="selectIcon(this)">💤</div>
+    <div class="icon-option" data-icon="🌱" onclick="selectIcon(this)">🌱</div>
+  </div>
+
+  <div class="field-label">任務名稱</div>
+  <input class="field-input" id="taskNameInput" type="text" placeholder="例如：整理書包" maxlength="12">
+
+  <div class="field-label">故事描述（孩子看到的）</div>
+  <input class="field-input" id="taskStoryInput" type="text" placeholder="例如：整理好 → 森林長出一朵花" maxlength="20">
+
+  <div class="field-label">完成可獲得的星光</div>
+  <div class="stars-row">
+    <div class="stars-option" onclick="selectStars(this, 5)">⭐ +5</div>
+    <div class="stars-option selected" onclick="selectStars(this, 10)">⭐ +10</div>
+    <div class="stars-option" onclick="selectStars(this, 15)">⭐ +15</div>
+    <div class="stars-option" onclick="selectStars(this, 20)">⭐ +20</div>
+  </div>
+
+  <button class="sheet-confirm-btn" onclick="confirmAddTask()">✓ 加入任務</button>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── 狀態 ──────────────────────────────
+const CORRECT_PIN = '1234';
+let pinInput = '';
+let failCount = 0;
+let selectedIcon  = '🎒';
+let selectedStars = 10;
+
+let tasks = [
+  { id:1, icon:'🎒', iconBg:'#E8F5EA', title:'整理書包',    story:'整理好 → 森林長出一朵花',  stars:10, active:true  },
+  { id:2, icon:'🪥', iconBg:'#E3F4FC', title:'刷牙洗臉',    story:'洗乾淨 → 河流恢復清澈',    stars:8,  active:true  },
+  { id:3, icon:'📖', iconBg:'#FFF8E1', title:'閱讀 20 分鐘', story:'讀完 → 樹屋亮起溫暖燈光',  stars:10, active:true  },
+  { id:4, icon:'👟', iconBg:'#FEEEF5', title:'運動時間',     story:'動一動 → 身體更健康',      stars:12, active:false },
+];
+
+// ── PIN 邏輯 ──────────────────────────
+function pressKey(k) {
+  if (pinInput.length >= 4) return;
+  pinInput += k;
+  updateDots();
+  if (pinInput.length === 4) {
+    setTimeout(checkPin, 200);
+  }
+}
+
+function pressDelete() {
+  if (!pinInput.length) return;
+  pinInput = pinInput.slice(0, -1);
+  updateDots();
+  document.getElementById('pinErrorMsg').classList.remove('show');
+}
+
+function updateDots() {
+  for (let i = 0; i < 4; i++) {
+    const d = document.getElementById(`dot-${i}`);
+    d.classList.toggle('filled', i < pinInput.length);
+    d.classList.remove('error');
+  }
+}
+
+function checkPin() {
+  if (pinInput === CORRECT_PIN) {
+    showScreen('screenMain');
+    pinInput = '';
+    failCount = 0;
+    updateDots();
+  } else {
+    failCount++;
+    for (let i = 0; i < 4; i++) {
+      document.getElementById(`dot-${i}`).classList.add('error');
+    }
+    const msg = document.getElementById('pinErrorMsg');
+    msg.textContent = failCount >= 3
+      ? '已鎖定 30 秒，請稍後再試'
+      : `PIN 碼錯誤，還有 ${3 - failCount} 次機會`;
+    msg.classList.add('show');
+    setTimeout(() => {
+      pinInput = '';
+      updateDots();
+    }, 700);
+  }
+}
+
+// ── 頁面切換 ──────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function goBack() { showScreen('screenPin'); pinInput=''; updateDots(); }
+function logout()  { showScreen('screenPin'); pinInput=''; updateDots(); showToast('已登出家長模式'); }
+
+function goToTaskManager() {
+  renderTaskManager();
+  showScreen('screenTasks');
+}
+
+// ── 任務管理渲染 ──────────────────────
+function renderTaskManager() {
+  const list = document.getElementById('taskManagerList');
+  list.innerHTML = '';
+  tasks.forEach(t => {
+    const card = document.createElement('div');
+    card.className = 'task-manage-card';
+    card.innerHTML = `
+      <div class="task-manage-icon" style="background:${t.iconBg}">${t.icon}</div>
+      <div class="task-manage-info">
+        <div class="task-manage-title">${t.title}</div>
+        <div class="task-manage-meta">⭐ +${t.stars}　${t.story}</div>
+      </div>
+      <div class="task-manage-right">
+        <label class="toggle">
+          <input type="checkbox" ${t.active ? 'checked' : ''}
+            onchange="toggleTask(${t.id}, this.checked)">
+          <div class="toggle-track"></div>
+        </label>
+        <button class="delete-btn" onclick="deleteTask(${t.id})">✕</button>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function toggleTask(id, val) {
+  const t = tasks.find(t => t.id === id);
+  if (t) { t.active = val; showToast(val ? `「${t.title}」已開啟` : `「${t.title}」已關閉`); }
+}
+
+function deleteTask(id) {
+  const t = tasks.find(t => t.id === id);
+  if (!t) return;
+  tasks = tasks.filter(t => t.id !== id);
+  renderTaskManager();
+  showToast(`🗑️ 已刪除「${t.title}」`);
+}
+
+// ── 新增任務 Sheet ────────────────────
+function openAddSheet() {
+  document.getElementById('taskNameInput').value  = '';
+  document.getElementById('taskStoryInput').value = '';
+  document.querySelectorAll('.icon-option').forEach(el => el.classList.remove('selected'));
+  document.querySelector('.icon-option[data-icon="🎒"]').classList.add('selected');
+  selectedIcon  = '🎒';
+  selectedStars = 10;
+  document.querySelectorAll('.stars-option').forEach((el,i) => el.classList.toggle('selected', i===1));
+  document.getElementById('sheetOverlay').classList.add('show');
+  document.getElementById('addSheet').classList.add('show');
+}
+
+function closeAddSheet() {
+  document.getElementById('sheetOverlay').classList.remove('show');
+  document.getElementById('addSheet').classList.remove('show');
+}
+
+function selectIcon(el) {
+  document.querySelectorAll('.icon-option').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedIcon = el.dataset.icon;
+}
+
+function selectStars(el, val) {
+  document.querySelectorAll('.stars-option').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedStars = val;
+}
+
+function confirmAddTask() {
+  const name  = document.getElementById('taskNameInput').value.trim();
+  const story = document.getElementById('taskStoryInput').value.trim();
+  if (!name) {
+    document.getElementById('taskNameInput').focus();
+    document.getElementById('taskNameInput').style.borderColor = 'var(--color-danger)';
+    setTimeout(() => document.getElementById('taskNameInput').style.borderColor = '', 1500);
+    return;
+  }
+  const bgMap = { '🎒':'#E8F5EA','🪥':'#E3F4FC','📖':'#FFF8E1','👟':'#FEEEF5',
+                  '🍱':'#FFF3E0','🎨':'#FCE4EC','🎹':'#EDE7F6','🚿':'#E0F7FA',
+                  '💤':'#F3E5F5','🌱':'#E8F5E9' };
+  tasks.push({
+    id: Date.now(),
+    icon:   selectedIcon,
+    iconBg: bgMap[selectedIcon] || '#F5F5F5',
+    title:  name,
+    story:  story || `完成 → 世界更美好`,
+    stars:  selectedStars,
+    active: true,
+  });
+  renderTaskManager();
+  closeAddSheet();
+  showToast(`✅ 已新增「${name}」`);
+}
+
+// ── 獎勵設定 ──────────────────────────
+let rewardDays = parseInt(localStorage.getItem('lh_rewardDays') || '3');
+
+function goToRewardSetting() {
+  // 同步目前設定到畫面
+  document.querySelectorAll('.reward-option').forEach(el => {
+    const d = parseInt(el.dataset.days);
+    el.classList.toggle('selected', d === rewardDays);
+  });
+  updateRewardPreview(rewardDays);
+  document.getElementById('rewardBadge').textContent = `每 ${rewardDays} 天`;
+  showScreen('screenReward');
+}
+
+function selectRewardDays(el, days) {
+  document.querySelectorAll('.reward-option').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  rewardDays = days;
+  updateRewardPreview(days);
+}
+
+function updateRewardPreview(days) {
+  document.getElementById('previewText').innerHTML =
+    `每連續 <span style="color:#E65100;font-size:26px;">${days}</span> 天完成 → 獲得 ⭐ 一個印章`;
+}
+
+function saveRewardSetting() {
+  localStorage.setItem('lh_rewardDays', rewardDays);
+  document.getElementById('rewardBadge').textContent = `每 ${rewardDays} 天`;
+  showToast(`✅ 已儲存：每連續 ${rewardDays} 天得一個印章`);
+  setTimeout(() => showScreen('screenMain'), 800);
+}
+
+// ── Toast ─────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+</script>
+</body>
+</html>
