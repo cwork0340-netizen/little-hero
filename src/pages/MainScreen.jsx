@@ -13,10 +13,8 @@ export default function MainScreen({ child, onTaskComplete, onReorderTasks, onAl
   const [burst, setBurst]     = useState(null)
   const [charAnim, setCharAnim] = useState('lh-float')
 
-  const done     = child.tasks.filter(x => x.done).length
-  const total    = child.tasks.length || 1
-  const pct      = Math.round((done / total) * 100)
-  const worldPct = Math.round(18 + pct * 0.72)
+  const done  = child.tasks.filter(x => x.done).length
+  const total = child.tasks.length || 1
 
   function handleComplete(taskId, e) {
     const r = e.currentTarget.getBoundingClientRect()
@@ -39,17 +37,18 @@ export default function MainScreen({ child, onTaskComplete, onReorderTasks, onAl
     <div className="storybook-frame">
       {burst && <StarBurst x={burst.x} y={burst.y} onDone={() => setBurst(null)} />}
 
-      <header className="top-cloud" style={{
-        padding: '16px 24px 12px',
+      <header className="top-cloud lh-header" style={{
+        padding: '14px 18px 10px',
         display: 'flex',
         alignItems: 'center',
-        gap: 14,
+        flexWrap: 'wrap',
+        gap: 10,
         flexShrink: 0,
       }}>
         <div style={{
-          fontSize: 30,
-          width: 58,
-          height: 58,
+          fontSize: 26,
+          width: 48,
+          height: 48,
           borderRadius: '50%',
           background: `linear-gradient(135deg, #fff, ${th.bg})`,
           display: 'flex',
@@ -60,94 +59,95 @@ export default function MainScreen({ child, onTaskComplete, onReorderTasks, onAl
           flexShrink: 0,
         }}>{child.avatar}</div>
 
-        <div>
-          <div style={{ fontSize: 22, fontWeight: 900, color: '#4A3428', lineHeight: 1.1 }}>{child.name}</div>
-          <div style={{ fontSize: 13, color: '#8B7566', fontWeight: 800, marginTop: 4 }}>下午好，今天要先幫誰呢？☀️</div>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 18, fontWeight: 900, color: '#4A3428', lineHeight: 1.1 }}>{child.name}</div>
+          <div style={{ fontSize: 12, color: '#8B7566', fontWeight: 800, marginTop: 2 }}>下午好，今天要先幫誰呢？☀️</div>
         </div>
 
-        <div style={{ flex: 1 }} />
+        <div style={{ flex: '1 0 auto', minWidth: 8 }} />
 
-        {[
-          { icon: '⭐', v: child.badges, l: '徽章', c: '#FFF2BD' },
-          { icon: '🔥', v: child.streak, l: '連續天數', c: '#FFE0C2' },
-        ].map((p, i) => (
-          <div key={i} className="stat-pill" style={{ background: p.c }}>
-            <span style={{ fontSize: 24 }}>{p.icon}</span>
-            <div>
-              <div style={{ fontSize: 20, fontWeight: 900, color: '#4A3428', lineHeight: 1 }}>{p.v}</div>
-              <div style={{ fontSize: 11, color: '#8B7566', fontWeight: 800 }}>{p.l}</div>
+        <div className="lh-stat-row" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {[
+            { icon: '⭐', v: child.badges, l: '徽章', c: '#FFF2BD' },
+            { icon: '🔥', v: child.streak, l: '連續天數', c: '#FFE0C2' },
+          ].map((p, i) => (
+            <div key={i} className="stat-pill" style={{ background: p.c, minHeight: 48, minWidth: 86, padding: '6px 12px' }}>
+              <span style={{ fontSize: 19 }}>{p.icon}</span>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 900, color: '#4A3428', lineHeight: 1 }}>{p.v}</div>
+                <div style={{ fontSize: 10, color: '#8B7566', fontWeight: 800 }}>{p.l}</div>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
 
-        <button className="soft-button" style={{ minHeight: 52, fontSize: 16 }}>
-          🎁 獎勵
-        </button>
+          <button className="soft-button" style={{ minHeight: 48, fontSize: 14, padding: '0 18px' }}>
+            🎁 獎勵
+          </button>
+        </div>
       </header>
 
-      <main style={{
+      <main className="lh-main" style={{
         flex: 1,
         minHeight: 0,
-        display: 'grid',
-        gridTemplateColumns: 'minmax(0, 1.18fr) minmax(380px, .82fr)',
-        gap: 20,
-        padding: '12px 22px 18px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 14,
+        padding: '8px 16px 14px',
+        overflowY: 'auto',
       }}>
         <WorldScene
           theme={th}
           done={done}
           total={total}
-          pct={pct}
-          worldPct={worldPct}
           charAnim={charAnim}
           onCharacterClick={() => { setCharAnim('lh-wiggle'); setTimeout(() => setCharAnim('lh-float'), 500) }}
         />
 
         <section className="storybook-card" style={{
-          minHeight: 0,
           display: 'flex',
           flexDirection: 'column',
-          overflow: 'hidden',
+          flexShrink: 0,
         }}>
           <div style={{
-            padding: '22px 22px 14px',
+            padding: '16px 18px 12px',
             borderBottom: '1px solid var(--line)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{
-                width: 50,
-                height: 50,
-                borderRadius: 18,
-                display: 'grid',
-                placeItems: 'center',
-                background: `linear-gradient(135deg, ${th.accent}55, #fff)`,
-                fontSize: 26,
-                boxShadow: '0 8px 18px rgba(74,52,40,.08)',
-              }}>{th.emoji}</div>
-              <div style={{ flex: 1 }}>
-                <h2 style={{ fontSize: 24, fontWeight: 900, color: '#4A3428', lineHeight: 1.15 }}>{th.taskTitle}</h2>
-                <p style={{ fontSize: 13, color: '#8B7566', fontWeight: 800, marginTop: 4 }}>拖曳卡片，排出你今天想做的順序。</p>
-              </div>
-              <div style={{
-                minWidth: 74,
-                padding: '8px 12px',
-                borderRadius: 18,
-                textAlign: 'center',
-                background: done === total ? '#DFF1D8' : '#FFF0D0',
-                color: '#4A3428',
-                fontWeight: 900,
-                boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.7)',
-              }}>
-                <div style={{ fontSize: 20, lineHeight: 1 }}>{done}/{total}</div>
-                <div style={{ fontSize: 10 }}>完成</div>
-              </div>
+            <div style={{
+              width: 44,
+              height: 44,
+              borderRadius: 16,
+              display: 'grid',
+              placeItems: 'center',
+              background: `linear-gradient(135deg, ${th.accent}55, #fff)`,
+              fontSize: 22,
+              boxShadow: '0 8px 18px rgba(74,52,40,.08)',
+              flexShrink: 0,
+            }}>{th.emoji}</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h2 style={{ fontSize: 'clamp(17px, 3.4vw, 22px)', fontWeight: 900, color: '#4A3428', lineHeight: 1.15 }}>{th.taskTitle}</h2>
+              <p style={{ fontSize: 12, color: '#8B7566', fontWeight: 800, marginTop: 3 }}>拖曳卡片，排出你今天想做的順序。</p>
+            </div>
+            <div style={{
+              minWidth: 64,
+              padding: '7px 10px',
+              borderRadius: 16,
+              textAlign: 'center',
+              background: done === total ? '#DFF1D8' : '#FFF0D0',
+              color: '#4A3428',
+              fontWeight: 900,
+              boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.7)',
+              flexShrink: 0,
+            }}>
+              <div style={{ fontSize: 18, lineHeight: 1 }}>{done}/{total}</div>
+              <div style={{ fontSize: 9 }}>完成</div>
             </div>
           </div>
 
           <div style={{
-            flex: 1,
-            overflowY: 'auto',
-            padding: '16px 18px',
+            padding: '14px 16px',
             display: 'flex',
             flexDirection: 'column',
             gap: 12,
@@ -175,7 +175,7 @@ export default function MainScreen({ child, onTaskComplete, onReorderTasks, onAl
             ))}
           </div>
 
-          <div style={{ padding: '16px 18px 18px', borderTop: '1px solid var(--line)' }}>
+          <div style={{ padding: '12px 16px 16px', borderTop: '1px solid var(--line)' }}>
             <button
               onClick={done === total ? onAllDone : undefined}
               className="soft-button"

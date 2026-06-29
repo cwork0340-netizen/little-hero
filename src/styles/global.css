@@ -32,6 +32,8 @@ html, body, #root {
     radial-gradient(circle at 82% 18%, rgba(167, 216, 255, 0.35), transparent 30%),
     linear-gradient(135deg, #FFF7E8 0%, #F8ECD8 52%, #EAF4DF 100%);
   -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 button, input, textarea {
@@ -43,10 +45,11 @@ button {
 }
 
 .app-shell {
-  width: min(1180px, 100vw);
+  width: min(720px, 100vw);
   min-height: 100vh;
   margin: 0 auto;
   position: relative;
+  overflow-x: hidden;
 }
 
 .parent-lock-button {
@@ -73,6 +76,8 @@ button {
   border-left: 1px solid rgba(255,255,255,0.7);
   border-right: 1px solid rgba(255,255,255,0.7);
   box-shadow: 0 0 60px rgba(83, 59, 36, 0.09);
+  overflow-x: hidden;
+  width: 100%;
 }
 
 .storybook-card {
@@ -224,5 +229,13 @@ button {
 
 @media (max-width: 860px) {
   .storybook-frame { min-height: 100dvh; }
-  .parent-lock-button { bottom: 86px; right: 16px; }
+  .parent-lock-button { bottom: 86px; right: 16px; width: 48px; height: 48px; font-size: 19px; }
+}
+
+@media (max-width: 480px) {
+  .lh-header { padding: 12px 14px 8px !important; }
+  .lh-stat-row .stat-pill { min-width: 0 !important; padding: 6px 9px !important; }
+  .lh-stat-row .stat-pill > div > div:first-child { font-size: 14px !important; }
+  .lh-main { padding: 8px 12px 12px !important; }
+  .soft-button { font-size: 13px !important; padding: 0 14px !important; }
 }
