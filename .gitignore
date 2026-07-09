@@ -4,3 +4,6 @@ dist
 .env.local
 .DS_Store
 *.log
+
+# 原始生圖素材（大檔，不進 repo）
+素材/

@@ -1,12 +1,13 @@
 // pages/SelectChild.jsx
 import WoodSign from '../components/WoodSign.jsx'
-import { THEMES } from '../data/themes.js'
+import { getHeroLevel } from '../data/hero.js'
+import { COLOR } from '../styles/tokens.js'
 
 export default function SelectChild({ children, onSelect, onAddChild }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#FFF7E8',
+      background: COLOR.cream,
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -18,7 +19,7 @@ export default function SelectChild({ children, onSelect, onAddChild }) {
 
       <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', justifyContent: 'center' }}>
         {children.map(ch => {
-          const th = THEMES[ch.theme]
+          const level = getHeroLevel(ch.line, ch.badges)
           return (
             <button
               key={ch.id}
@@ -26,7 +27,7 @@ export default function SelectChild({ children, onSelect, onAddChild }) {
               className="lh-fadeup"
               style={{
                 background: '#FFFFFF',
-                border: `3px solid ${th.accent}`,
+                border: `3px solid ${COLOR.green}`,
                 borderRadius: 28,
                 padding: '22px 26px',
                 display: 'flex',
@@ -34,7 +35,7 @@ export default function SelectChild({ children, onSelect, onAddChild }) {
                 alignItems: 'center',
                 gap: 10,
                 cursor: 'pointer',
-                boxShadow: `0 6px 24px ${th.accent}66`,
+                boxShadow: `0 6px 24px ${COLOR.green}44`,
                 transition: 'transform .2s',
                 fontFamily: 'inherit',
               }}
@@ -42,32 +43,38 @@ export default function SelectChild({ children, onSelect, onAddChild }) {
               onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
             >
               <div style={{
-                fontSize: 52,
                 width: 84,
                 height: 84,
                 borderRadius: '50%',
-                background: `linear-gradient(135deg, ${th.bg}, ${th.panelBg})`,
+                overflow: 'hidden',
+                background: `linear-gradient(135deg, ${COLOR.sky}, ${COLOR.meadow})`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 boxShadow: '0 4px 12px rgba(0,0,0,.12)',
               }}>
-                {ch.avatar}
+                <img src={level.idle} alt={ch.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
               </div>
-              <div style={{ fontSize: 19, fontWeight: 900, color: '#4A3428' }}>{ch.name}</div>
-              <div style={{ display: 'flex', gap: 10, fontSize: 12, color: '#8B7566', fontWeight: 700 }}>
-                <span>🔥 {ch.streak}天</span>
-                <span>🏅 {ch.badges}枚</span>
+              <div style={{ fontSize: 19, fontWeight: 900, color: COLOR.ink }}>{ch.name}</div>
+              <div style={{ display: 'flex', gap: 12, fontSize: 12, color: COLOR.slate, fontWeight: 700, alignItems: 'center' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                  <img src="/assets/little-hero-v4/ui/flame.svg" alt="" style={{ width: 13, height: 15 }} />
+                  {ch.streak} 天
+                </span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                  <img src="/assets/little-hero-v4/ui/star.webp" alt="" style={{ width: 14, height: 14 }} />
+                  {ch.badges} 枚
+                </span>
               </div>
               <div style={{
                 fontSize: 11,
-                color: th.accentD,
+                color: '#fff',
                 fontWeight: 800,
-                background: th.bg,
+                background: COLOR.green,
                 borderRadius: 10,
                 padding: '2px 10px',
               }}>
-                {th.emoji} {th.label}
+                {level.name}
               </div>
             </button>
           )

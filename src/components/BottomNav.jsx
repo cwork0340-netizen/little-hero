@@ -1,10 +1,10 @@
-// BottomNav.jsx
+// BottomNav.jsx — 村莊 / 故事 / 任務 / 寶箱 / 我的勇者
+const NAV = '/assets/little-hero-v4/nav'
 const TABS = [
-  { id: 'home',     icon: '🏠', label: '首頁'  },
-  { id: 'achieve',  icon: '⭐', label: '成就'  },
-  { id: 'rewards',  icon: '🎁', label: '獎勵'  },
-  { id: 'chars',    icon: '🐾', label: '角色'  },
-  { id: 'settings', icon: '⚙️', label: '設定'  },
+  { id: 'home',     icon: `${NAV}/village.svg`, label: '村莊'    },
+  { id: 'achieve',  icon: `${NAV}/quest.svg`,   label: '成就'    },
+  { id: 'rewards',  icon: `${NAV}/chest.svg`,   label: '寶箱'    },
+  { id: 'settings', icon: `${NAV}/hero.svg`,    label: '家長'    },
 ]
 
 export default function BottomNav({ active, onChange }) {
@@ -22,7 +22,7 @@ export default function BottomNav({ active, onChange }) {
         borderRadius: 999,
         display: 'flex',
         padding: 8,
-        boxShadow: '0 16px 34px rgba(74,52,40,.14)',
+        boxShadow: '0 16px 34px rgba(62,62,62,.14)',
         backdropFilter: 'blur(14px)',
       }}>
         {TABS.map(tab => {
@@ -33,7 +33,7 @@ export default function BottomNav({ active, onChange }) {
               onClick={() => onChange(tab.id)}
               style={{
                 flex: 1,
-                background: selected ? 'linear-gradient(135deg, #FFB6B9, #FFD166)' : 'transparent',
+                background: selected ? 'linear-gradient(135deg, #FFD45A, #FFA36A)' : 'transparent',
                 border: 'none',
                 borderRadius: 999,
                 cursor: 'pointer',
@@ -43,16 +43,15 @@ export default function BottomNav({ active, onChange }) {
                 gap: 8,
                 padding: '8px 10px',
                 fontFamily: 'inherit',
-                color: selected ? '#4A3428' : '#8B7566',
-                boxShadow: selected ? '0 10px 20px rgba(255,182,185,.28)' : 'none',
+                boxShadow: selected ? '0 10px 20px rgba(255,163,106,.32)' : 'none',
                 transition: 'all .2s ease',
               }}
             >
-              <span style={{ fontSize: 24 }}>{tab.icon}</span>
+              <img src={tab.icon} alt="" style={{ width: 22, height: 22, opacity: selected ? 1 : .45 }} />
               <span style={{
                 fontSize: 13,
                 fontWeight: selected ? 900 : 800,
-                display: selected ? 'inline' : 'none',
+                color: selected ? '#3E3E3E' : '#6D808C',
               }}>
                 {tab.label}
               </span>
