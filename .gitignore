@@ -7,3 +7,4 @@ dist
 
 # 原始生圖素材（大檔，不進 repo）
 素材/
+.vercel

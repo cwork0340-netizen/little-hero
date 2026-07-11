@@ -1,17 +1,15 @@
-// pages/AllScreens.jsx — AllDone / AchievementBook / ParentPIN / ParentDash
+// pages/AllScreens.jsx — AllDone / ParentPIN / ParentDash
 import { useState, useEffect } from 'react'
 import { COLOR } from '../styles/tokens.js'
-import { getHeroLevel, HERO_LINES } from '../data/hero.js'
-import { getAchievements, TASK_ICON_CHOICES, makeChild } from '../data/tasks.js'
-import { SEASON_BG } from '../data/village.js'
+import { AVATAR, LINE_LABELS } from '../data/avatar.js'
+import { TASK_ICON_CHOICES, makeChild } from '../data/tasks.js'
 import { todayStr } from '../utils/storage.js'
-import WoodSign from '../components/WoodSign.jsx'
 
 const STAR_ICON = '/assets/little-hero-v4/ui/star.webp'
 
-// ── 今日冒險完成 ────────────────────────────────
-export function AllDone({ child, onHome, onAchievements }) {
-  const level = getHeroLevel(child.line, child.badges)
+// ── 今日任務全部完成 — 疊加式慶祝卡（不整頁跳轉）──
+export function AllDone({ child, onClose }) {
+  const avatar = AVATAR[child.line] || AVATAR.boy
   const [anim, setAnim] = useState('lh-bounce')
   useEffect(() => {
     const iv = setInterval(() => {
@@ -23,96 +21,46 @@ export function AllDone({ child, onHome, onAchievements }) {
   const earnedToday = child.badgeAwardedDate === todayStr()
 
   return (
-    <div style={{
-      minHeight: '100vh', background: COLOR.cream,
-      display: 'flex', flexDirection: 'column', alignItems: 'center',
-      justifyContent: 'center', gap: 20, padding: 28, textAlign: 'center',
-    }}>
-      <div className="lh-fadeup" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-        <div style={{ fontSize: 36, lineHeight: 1 }}>🎉</div>
-        <div style={{ fontSize: 38, fontWeight: 900, color: COLOR.green }}>今日冒險完成！</div>
-      </div>
-
-      <div className={anim} style={{
-        width: 140, display: 'inline-block',
-        filter: 'drop-shadow(0 8px 16px rgba(0,0,0,.15))',
-      }}>
-        <img src={level.cheer} alt={level.name} style={{ width: '100%' }} />
-      </div>
-
-      <div style={{ fontSize: 17, fontWeight: 700, color: COLOR.ink }}>
-        {level.name}超開心！謝謝你今天的幫忙 🌟
-      </div>
-
-      {/* badge card — 真實數據 */}
-      <div className="lh-glow" style={{
-        background: '#fff', borderRadius: 28, padding: '22px 28px',
-        boxShadow: '0 8px 28px rgba(0,0,0,.1)', maxWidth: 300, width: '100%',
-      }}>
-        <img src={STAR_ICON} alt="" style={{ width: 50, height: 50 }} />
-        <div style={{ fontSize: 20, fontWeight: 900, color: '#E8A800', marginTop: 8 }}>
-          {earnedToday ? '獲得 1 枚冒險徽章！' : '今天的任務都完成了！'}
+    <div className="lh-overlay-backdrop" onClick={onClose}>
+      <div
+        className="lh-fadeup"
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: COLOR.cream, borderRadius: 32, padding: '28px 24px',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16,
+          textAlign: 'center', maxWidth: 340, width: '100%',
+          boxShadow: '0 24px 60px rgba(0,0,0,.3)',
+        }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+          <div style={{ fontSize: 32, lineHeight: 1 }}>🎉</div>
+          <div style={{ fontSize: 26, fontWeight: 900, color: COLOR.green }}>今天全部完成了！</div>
         </div>
-        <div style={{ fontSize: 14, fontWeight: 800, color: COLOR.ink, marginTop: 8 }}>
-          已累積 {child.badges} 枚徽章
-        </div>
-        <div style={{ fontSize: 12, color: COLOR.slate, marginTop: 4 }}>
-          連續 {child.streak} 天完成 🔥
-        </div>
-      </div>
 
-      <div style={{ display: 'flex', gap: 12, width: '100%', maxWidth: 320 }}>
-        <button onClick={onAchievements} style={{
-          flex: 1, height: 50, background: COLOR.green, border: 'none', borderRadius: 25,
-          fontSize: 15, fontWeight: 800, color: '#fff', cursor: 'pointer',
-          boxShadow: '0 4px 14px rgba(0,0,0,.12)', fontFamily: 'inherit',
-        }}>🌟 看我的成就</button>
-        <button onClick={onHome} style={{
-          flex: 1, height: 50, background: '#fff', border: '2px solid #ddd', borderRadius: 25,
-          fontSize: 15, fontWeight: 800, color: COLOR.ink, cursor: 'pointer', fontFamily: 'inherit',
-        }}>回村莊</button>
-      </div>
-    </div>
-  )
-}
+        <div className={anim} style={{ width: 110, filter: 'drop-shadow(0 8px 16px rgba(0,0,0,.15))' }}>
+          <img src={avatar.cheer} alt="" style={{ width: '100%' }} />
+        </div>
 
-// ── 成就收藏冊（真實判定）────────────────────────
-export function AchievementBook({ child, onBack }) {
-  const achievements = getAchievements(child)
-  return (
-    <div style={{ minHeight: '100vh', background: COLOR.cream, padding: 20 }}>
-      <div style={{ maxWidth: 580, margin: '0 auto' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-          <button onClick={onBack} style={{ background: 'none', border: 'none', fontSize: 24, cursor: 'pointer' }}>←</button>
-          <WoodSign fontSize={17}>✨ 我的成就收藏冊</WoodSign>
+        <div className="lh-glow" style={{
+          background: '#fff', borderRadius: 24, padding: '18px 22px', width: '100%',
+          boxShadow: '0 8px 24px rgba(0,0,0,.08)',
+        }}>
+          <img src={STAR_ICON} alt="" style={{ width: 42, height: 42 }} />
+          <div style={{ fontSize: 17, fontWeight: 900, color: '#E8A800', marginTop: 6 }}>
+            {earnedToday ? '獲得 1 枚徽章！' : '今天的任務都完成了！'}
+          </div>
+          <div style={{ fontSize: 13, fontWeight: 800, color: COLOR.ink, marginTop: 6 }}>
+            已累積 {child.badges} 枚徽章
+          </div>
+          <div style={{ fontSize: 11, color: COLOR.slate, marginTop: 3 }}>
+            連續 {child.streak} 天完成 🔥
+          </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-          {achievements.map((a, i) => (
-            <div key={a.id} className="lh-fadeup" style={{
-              animationDelay: `${i * 55}ms`,
-              background: a.unlocked ? '#fff' : '#f4f4f4',
-              borderRadius: 20, padding: 16, textAlign: 'center',
-              boxShadow: a.unlocked ? '0 4px 18px rgba(0,0,0,.09)' : 'none',
-              opacity: a.unlocked ? 1 : 0.45,
-              filter: a.unlocked ? 'none' : 'grayscale(1)',
-            }}>
-              <div style={{ fontSize: 34, marginBottom: 6, display: 'flex', justifyContent: 'center' }}>
-                {!a.unlocked
-                  ? '🔒'
-                  : a.icon.startsWith('/')
-                    ? <img src={a.icon} alt="" style={{ width: 34, height: 34, objectFit: 'contain' }} />
-                    : a.icon}
-              </div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: COLOR.ink, lineHeight: 1.4 }}>{a.label}</div>
-              {a.unlocked && (
-                <div style={{
-                  marginTop: 7, fontSize: 10, color: '#3E8A47', fontWeight: 800,
-                  background: COLOR.cream, borderRadius: 8, padding: '2px 8px', display: 'inline-block',
-                }}>已解鎖 ✓</div>
-              )}
-            </div>
-          ))}
-        </div>
+
+        <button onClick={onClose} style={{
+          width: '100%', height: 48, background: COLOR.green, border: 'none', borderRadius: 24,
+          fontSize: 15, fontWeight: 800, color: '#fff', cursor: 'pointer', fontFamily: 'inherit',
+        }}>太棒了！</button>
       </div>
     </div>
   )
@@ -450,14 +398,14 @@ export function ParentDash({ children, setChildren, rewards, setRewards, parentP
                   )}
                 </div>
                 <div style={{ display: 'flex', gap: 6 }}>
-                  {Object.entries(HERO_LINES).map(([key, line]) => (
+                  {Object.entries(LINE_LABELS).map(([key, label]) => (
                     <button key={key}
                       onClick={() => updateChild(c.id, { line: key, avatar: key === 'boy' ? '👦' : '👧' })}
                       style={{
                         flex: 1, padding: '7px 0', borderRadius: 10, border: 'none', cursor: 'pointer',
                         background: c.line === key ? pu : '#f4f0fa', color: c.line === key ? '#fff' : pu,
                         fontSize: 12, fontWeight: 800, fontFamily: 'inherit',
-                      }}>{line.label}{c.line === key ? ' ✓' : ''}</button>
+                      }}>{label}{c.line === key ? ' ✓' : ''}</button>
                   ))}
                 </div>
               </div>
@@ -468,13 +416,13 @@ export function ParentDash({ children, setChildren, rewards, setRewards, parentP
                 <input value={newChild.name} onChange={e => setNewChild(p => ({ ...p, name: e.target.value }))}
                   placeholder="孩子的名字" style={inputStyle} />
                 <div style={{ display: 'flex', gap: 6, marginBottom: 7 }}>
-                  {Object.entries(HERO_LINES).map(([key, line]) => (
+                  {Object.entries(LINE_LABELS).map(([key, label]) => (
                     <button key={key} onClick={() => setNewChild(p => ({ ...p, line: key }))}
                       style={{
                         flex: 1, padding: '8px 0', borderRadius: 10, border: 'none', cursor: 'pointer',
                         background: newChild.line === key ? pu : '#f4f0fa', color: newChild.line === key ? '#fff' : pu,
                         fontSize: 12, fontWeight: 800, fontFamily: 'inherit',
-                      }}>{line.label}{newChild.line === key ? ' ✓' : ''}</button>
+                      }}>{label}{newChild.line === key ? ' ✓' : ''}</button>
                   ))}
                 </div>
                 <div style={{ display: 'flex', gap: 7 }}>
@@ -490,34 +438,10 @@ export function ParentDash({ children, setChildren, rewards, setRewards, parentP
           </div>
         )}
 
-        {/* SETTINGS TAB：背景 + PIN */}
+        {/* SETTINGS TAB：家長 PIN */}
         {tab === 'settings' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-            <div style={{ fontSize: 13, color: '#999', fontWeight: 600 }}>
-              {child.name} 的村莊背景（預設依月份自動換季）
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
-              <button
-                onClick={() => updateChild(child.id, { seasonOverride: null })}
-                style={{
-                  background: !child.seasonOverride ? pu : '#fff',
-                  color: !child.seasonOverride ? '#fff' : '#4A3428',
-                  border: 'none', borderRadius: 14, padding: '11px 0', fontSize: 13, fontWeight: 800,
-                  cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 2px 10px rgba(0,0,0,.07)',
-                }}>🔄 自動{!child.seasonOverride ? ' ✓' : ''}</button>
-              {Object.entries(SEASON_BG).map(([key, s]) => (
-                <button key={key}
-                  onClick={() => updateChild(child.id, { seasonOverride: key })}
-                  style={{
-                    background: child.seasonOverride === key ? pu : '#fff',
-                    color: child.seasonOverride === key ? '#fff' : '#4A3428',
-                    border: 'none', borderRadius: 14, padding: '11px 0', fontSize: 13, fontWeight: 800,
-                    cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 2px 10px rgba(0,0,0,.07)',
-                  }}>{s.label}{child.seasonOverride === key ? ' ✓' : ''}</button>
-              ))}
-            </div>
-
-            <div style={{ background: '#fff', borderRadius: 16, padding: 14, boxShadow: '0 2px 10px rgba(0,0,0,.07)', marginTop: 8 }}>
+            <div style={{ background: '#fff', borderRadius: 16, padding: 14, boxShadow: '0 2px 10px rgba(0,0,0,.07)' }}>
               <div style={{ fontSize: 13, fontWeight: 800, color: '#4A3428', marginBottom: 8 }}>🔐 修改家長 PIN</div>
               <div style={{ display: 'flex', gap: 7 }}>
                 <input

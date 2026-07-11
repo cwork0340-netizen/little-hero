@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Little Hero Simple Mock</title>
+  <style>
+    :root {
+      --cream: #fff8ee;
+      --paper: #ffffff;
+      --ink: #3e332a;
+      --muted: #827568;
+      --line: #eadfce;
+      --green: #68b875;
+      --green-soft: #e7f5e6;
+      --honey: #ffd35a;
+      --honey-soft: #fff2c7;
+      --sky: #9fd8f5;
+      --coral: #f98f84;
+      --shadow: 0 18px 42px rgba(91, 68, 42, 0.15);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 18% 10%, rgba(255, 211, 90, 0.28), transparent 24%),
+        radial-gradient(circle at 82% 18%, rgba(159, 216, 245, 0.42), transparent 26%),
+        linear-gradient(180deg, #eef9ff 0%, var(--cream) 42%, #f3ead8 100%);
+    }
+
+    button, input {
+      font: inherit;
+    }
+
+    .page {
+      width: min(100%, 1160px);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: minmax(320px, 390px) 1fr;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .phone {
+      min-height: 760px;
+      border-radius: 38px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.64);
+      border: 1px solid rgba(255, 255, 255, 0.86);
+      box-shadow: var(--shadow);
+    }
+
+    .screen {
+      min-height: 728px;
+      border-radius: 30px;
+      overflow: hidden;
+      background: linear-gradient(180deg, #f2fbff 0%, #fff8ee 38%, #f9f0df 100%);
+      display: none;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    .top {
+      padding: 18px 18px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fff, #dff3d9);
+      border: 3px solid rgba(255, 255, 255, 0.92);
+      box-shadow: 0 8px 18px rgba(83, 62, 38, 0.12);
+      overflow: hidden;
+      flex: 0 0 auto;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top;
+      display: block;
+    }
+
+    .title-block {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .eyebrow {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 3px;
+    }
+
+    h1, h2, p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 23px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .lock {
+      width: 44px;
+      height: 44px;
+      border: 0;
+      border-radius: 50%;
+      color: #76552e;
+      background: #fff4d3;
+      box-shadow: 0 6px 12px rgba(83, 62, 38, 0.1);
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .content {
+      padding: 0 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      flex: 1;
+    }
+
+    .note {
+      padding: 18px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 10px 26px rgba(83, 62, 38, 0.1);
+    }
+
+    .note strong {
+      display: block;
+      font-size: 20px;
+      line-height: 1.32;
+      margin-bottom: 8px;
+    }
+
+    .progress {
+      height: 14px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #efe2ce;
+      margin-top: 14px;
+    }
+
+    .progress span {
+      display: block;
+      height: 100%;
+      width: 40%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--green), var(--honey));
+      transition: width 0.25s ease;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .stat {
+      min-height: 72px;
+      padding: 12px;
+      border-radius: 20px;
+      background: #fff9ed;
+      border: 2px solid #d7a64a;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .stat img {
+      width: 30px;
+      height: 30px;
+      object-fit: contain;
+    }
+
+    .stat b {
+      display: block;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .stat small {
+      color: #805d2f;
+      font-weight: 800;
+    }
+
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+
+    .task {
+      min-height: 88px;
+      border: 0;
+      border-radius: 24px;
+      padding: 13px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 9px 24px rgba(83, 62, 38, 0.09);
+      display: grid;
+      grid-template-columns: 54px 1fr 44px;
+      gap: 12px;
+      align-items: center;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .task.done {
+      background: var(--green-soft);
+    }
+
+    .task-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      background: #fff5d8;
+      display: grid;
+      place-items: center;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+    }
+
+    .task-icon img {
+      width: 38px;
+      height: 38px;
+      object-fit: contain;
+    }
+
+    .task-name {
+      font-size: 18px;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+
+    .task-sub {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .check {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 3px solid var(--green);
+      background: #fff;
+      display: grid;
+      place-items: center;
+      color: var(--green);
+      font-weight: 900;
+      font-size: 20px;
+    }
+
+    .task.done .check {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .reward-card {
+      padding: 16px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: 0 9px 24px rgba(83, 62, 38, 0.09);
+      border: 2px solid transparent;
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: 13px;
+      align-items: center;
+    }
+
+    .reward-card.ready {
+      border-color: var(--honey);
+      background: #fff9e8;
+    }
+
+    .reward-card img {
+      width: 58px;
+      height: 52px;
+      object-fit: contain;
+    }
+
+    .reward-card h2 {
+      font-size: 17px;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .reward-card small {
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .parent-head {
+      background: #f4ecfb;
+      border-bottom: 1px solid #e2d4eb;
+    }
+
+    .tabs {
+      padding: 4px;
+      border-radius: 18px;
+      background: #fff;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      box-shadow: 0 6px 16px rgba(83, 62, 38, 0.08);
+    }
+
+    .tabs button, .nav button {
+      border: 0;
+      cursor: pointer;
+      font-weight: 900;
+    }
+
+    .tabs button {
+      min-height: 42px;
+      border-radius: 14px;
+      background: transparent;
+      color: #79599a;
+    }
+
+    .tabs button.active {
+      color: #fff;
+      background: #7b5ea7;
+    }
+
+    .form-card {
+      padding: 16px;
+      border-radius: 22px;
+      background: #fff;
+      box-shadow: 0 8px 22px rgba(83, 62, 38, 0.08);
+    }
+
+    .form-card label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      margin-bottom: 7px;
+    }
+
+    .form-card input {
+      width: 100%;
+      min-height: 46px;
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      padding: 0 13px;
+      color: var(--ink);
+      font-weight: 800;
+      outline: none;
+    }
+
+    .parent-row {
+      display: grid;
+      grid-template-columns: 46px 1fr auto;
+      gap: 11px;
+      align-items: center;
+      padding: 12px;
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: 0 6px 18px rgba(83, 62, 38, 0.06);
+    }
+
+    .parent-row img {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+    }
+
+    .parent-row b {
+      display: block;
+    }
+
+    .parent-row small {
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .pill {
+      border: 0;
+      border-radius: 999px;
+      background: #f5edf8;
+      color: #7b5ea7;
+      padding: 8px 12px;
+      font-weight: 900;
+    }
+
+    .nav {
+      position: sticky;
+      bottom: 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      padding: 14px 16px 16px;
+      background: linear-gradient(180deg, rgba(255, 248, 238, 0), rgba(255, 248, 238, 0.96) 28%);
+    }
+
+    .nav button {
+      min-height: 50px;
+      border-radius: 18px;
+      background: #fff;
+      color: var(--muted);
+      box-shadow: 0 6px 18px rgba(83, 62, 38, 0.08);
+    }
+
+    .nav button.active {
+      color: #fff;
+      background: var(--green);
+    }
+
+    .side {
+      max-width: 560px;
+    }
+
+    .side h2 {
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.08;
+      letter-spacing: 0;
+      margin-bottom: 18px;
+    }
+
+    .side p {
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.7;
+      font-weight: 700;
+      margin-bottom: 22px;
+    }
+
+    .principles {
+      display: grid;
+      gap: 12px;
+    }
+
+    .principle {
+      padding: 15px 17px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 8px 22px rgba(83, 62, 38, 0.08);
+      font-weight: 900;
+    }
+
+    .modal {
+      position: absolute;
+      inset: 0;
+      background: rgba(48, 37, 26, 0.34);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .dialog {
+      width: 100%;
+      border-radius: 28px;
+      padding: 24px 20px;
+      text-align: center;
+      background: #fffaf1;
+      box-shadow: 0 22px 56px rgba(45, 32, 18, 0.28);
+    }
+
+    .dialog img {
+      width: 104px;
+      height: 104px;
+      object-fit: contain;
+      margin-bottom: 6px;
+    }
+
+    .dialog h2 {
+      font-size: 25px;
+      margin-bottom: 8px;
+    }
+
+    .dialog p {
+      color: var(--muted);
+      font-weight: 800;
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+
+    .primary {
+      width: 100%;
+      min-height: 52px;
+      border: 0;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--green);
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    @media (max-width: 860px) {
+      .page {
+        grid-template-columns: 1fr;
+        padding: 14px;
+      }
+
+      .side {
+        order: -1;
+        max-width: none;
+      }
+
+      .side h2 {
+        font-size: 30px;
+      }
+
+      .side p {
+        font-size: 15px;
+      }
+
+      .phone {
+        min-height: auto;
+        padding: 10px;
+      }
+
+      .screen {
+        min-height: 690px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="phone">
+      <section class="screen active" data-screen="today">
+        <header class="top">
+          <div class="avatar">
+            <img src="public/assets/little-hero-v4/characters/hero-girl/lv1_idle.webp" alt="孩子頭像" />
+          </div>
+          <div class="title-block">
+            <div class="eyebrow">今天的小任務</div>
+            <h1>早安，小米</h1>
+          </div>
+          <button class="lock" data-go="parent" aria-label="家長設定">設</button>
+        </header>
+
+        <main class="content">
+          <section class="note">
+            <strong>慢慢來，一件一件完成就很好。</strong>
+            <p class="task-sub">今天完成 2 / 5 件。全部完成可以得到 1 顆星星。</p>
+            <div class="progress" aria-label="今日進度"><span id="todayProgress"></span></div>
+          </section>
+
+          <div class="stats">
+            <div class="stat">
+              <img src="public/assets/little-hero-v4/ui/star.webp" alt="" />
+              <div><b id="starCount">6</b><small>星星</small></div>
+            </div>
+            <div class="stat">
+              <img src="public/assets/little-hero-v4/ui/flame.svg" alt="" />
+              <div><b>3</b><small>連續天數</small></div>
+            </div>
+          </div>
+
+          <div class="task-list" id="tasks">
+            <button class="task done" data-task>
+              <span class="task-icon"><img src="public/assets/little-hero-v4/icons/tasks/toothbrush.webp" alt="" /></span>
+              <span><span class="task-name">刷牙洗臉</span><span class="task-sub">照顧好自己，是今天的第一步。</span></span>
+              <span class="check">✓</span>
+            </button>
+            <button class="task done" data-task>
+              <span class="task-icon"><img src="public/assets/little-hero-v4/icons/tasks/backpack.webp" alt="" /></span>
+              <span><span class="task-name">整理書包</span><span class="task-sub">把需要的東西放進去。</span></span>
+              <span class="check">✓</span>
+            </button>
+            <button class="task" data-task>
+              <span class="task-icon"><img src="public/assets/little-hero-v4/icons/tasks/homework.webp" alt="" /></span>
+              <span><span class="task-name">完成作業</span><span class="task-sub">先做一小段也可以。</span></span>
+              <span class="check"></span>
+            </button>
+            <button class="task" data-task>
+              <span class="task-icon"><img src="public/assets/little-hero-v4/icons/tasks/tidy_toys.webp" alt="" /></span>
+              <span><span class="task-name">收好玩具</span><span class="task-sub">讓房間變得好走路。</span></span>
+              <span class="check"></span>
+            </button>
+            <button class="task" data-task>
+              <span class="task-icon"><img src="public/assets/little-hero-v4/icons/tasks/reading.webp" alt="" /></span>
+              <span><span class="task-name">閱讀 10 分鐘</span><span class="task-sub">挑一本喜歡的書就好。</span></span>
+              <span class="check"></span>
+            </button>
+          </div>
+        </main>
+
+        <div class="nav">
+          <button class="active" data-go="today">今天</button>
+          <button data-go="rewards">獎勵</button>
+          <button data-go="parent">家長</button>
+        </div>
+
+        <div class="modal" id="doneModal">
+          <div class="dialog">
+            <img src="public/assets/little-hero-v4/characters/hero-girl/lv1_cheer.webp" alt="" />
+            <h2>今天完成了</h2>
+            <p>你把今天的小任務都做好了。星星已經放進你的小盒子。</p>
+            <button class="primary" id="closeModal">好</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" data-screen="rewards">
+        <header class="top">
+          <button class="lock" data-go="today" aria-label="回今天">回</button>
+          <div class="title-block">
+            <div class="eyebrow">星星可以換的小期待</div>
+            <h1>獎勵盒</h1>
+          </div>
+        </header>
+
+        <main class="content">
+          <section class="note">
+            <strong>目前有 6 顆星星。</strong>
+            <p class="task-sub">獎勵由家長確認後兌換。</p>
+          </section>
+
+          <article class="reward-card ready">
+            <img src="public/assets/little-hero-v4/ui/chest_open.webp" alt="" />
+            <div>
+              <h2>睡前多一本故事書</h2>
+              <small>需要 3 顆星星，已經可以兌換</small>
+            </div>
+          </article>
+          <article class="reward-card ready">
+            <img src="public/assets/little-hero-v4/ui/chest_open.webp" alt="" />
+            <div>
+              <h2>週末選一份小點心</h2>
+              <small>需要 5 顆星星，已經可以兌換</small>
+            </div>
+          </article>
+          <article class="reward-card">
+            <img src="public/assets/little-hero-v4/ui/chest_closed.webp" alt="" />
+            <div>
+              <h2>家庭電影時間</h2>
+              <small>需要 8 顆星星，還差 2 顆</small>
+            </div>
+          </article>
+        </main>
+
+        <div class="nav">
+          <button data-go="today">今天</button>
+          <button class="active" data-go="rewards">獎勵</button>
+          <button data-go="parent">家長</button>
+        </div>
+      </section>
+
+      <section class="screen" data-screen="parent">
+        <header class="top parent-head">
+          <button class="lock" data-go="today" aria-label="回今天">回</button>
+          <div class="title-block">
+            <div class="eyebrow">家長設定</div>
+            <h1>小米的每日安排</h1>
+          </div>
+        </header>
+
+        <main class="content">
+          <div class="tabs">
+            <button class="active">任務</button>
+            <button>獎勵</button>
+            <button>記錄</button>
+          </div>
+
+          <section class="form-card">
+            <label for="newTask">新增任務</label>
+            <input id="newTask" value="睡前洗澡" />
+          </section>
+
+          <div class="parent-row">
+            <img src="public/assets/little-hero-v4/icons/tasks/toothbrush.webp" alt="" />
+            <div><b>刷牙洗臉</b><small>每天早上</small></div>
+            <button class="pill">編輯</button>
+          </div>
+          <div class="parent-row">
+            <img src="public/assets/little-hero-v4/icons/tasks/homework.webp" alt="" />
+            <div><b>完成作業</b><small>放學後</small></div>
+            <button class="pill">編輯</button>
+          </div>
+          <div class="parent-row">
+            <img src="public/assets/little-hero-v4/icons/tasks/reading.webp" alt="" />
+            <div><b>閱讀 10 分鐘</b><small>睡前</small></div>
+            <button class="pill">編輯</button>
+          </div>
+        </main>
+
+        <div class="nav">
+          <button data-go="today">今天</button>
+          <button data-go="rewards">獎勵</button>
+          <button class="active" data-go="parent">家長</button>
+        </div>
+      </section>
+    </div>
+
+    <aside class="side">
+      <h2>每日小任務小本本</h2>
+      <p>這版拿掉英雄故事和複雜世界觀，只保留孩子每天真的需要的三件事：看見任務、完成任務、得到肯定。</p>
+      <div class="principles">
+        <div class="principle">孩子端：畫面少、按鈕大、完成感明確。</div>
+        <div class="principle">家長端：能設定任務與獎勵，但不干擾孩子使用。</div>
+        <div class="principle">視覺：像柔軟的小記錄本，不像待辦工具。</div>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const screens = document.querySelectorAll(".screen");
+    const goButtons = document.querySelectorAll("[data-go]");
+    const tasks = document.querySelectorAll("[data-task]");
+    const progress = document.getElementById("todayProgress");
+    const modal = document.getElementById("doneModal");
+    const closeModal = document.getElementById("closeModal");
+    const starCount = document.getElementById("starCount");
+    let awarded = false;
+
+    function showScreen(name) {
+      screens.forEach((screen) => {
+        screen.classList.toggle("active", screen.dataset.screen === name);
+      });
+    }
+
+    function updateProgress() {
+      const done = document.querySelectorAll("[data-task].done").length;
+      const total = tasks.length;
+      progress.style.width = `${Math.round((done / total) * 100)}%`;
+      if (done === total && !awarded) {
+        awarded = true;
+        starCount.textContent = "7";
+        setTimeout(() => modal.classList.add("show"), 240);
+      }
+    }
+
+    goButtons.forEach((button) => {
+      button.addEventListener("click", () => showScreen(button.dataset.go));
+    });
+
+    tasks.forEach((task) => {
+      task.addEventListener("click", () => {
+        task.classList.toggle("done");
+        task.querySelector(".check").textContent = task.classList.contains("done") ? "✓" : "";
+        updateProgress();
+      });
+    });
+
+    closeModal.addEventListener("click", () => modal.classList.remove("show"));
+    updateProgress();
+  </script>
+</body>
+</html>

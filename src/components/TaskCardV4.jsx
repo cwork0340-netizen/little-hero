@@ -1,36 +1,10 @@
-// TaskCardV4.jsx — village task card, real icon art, touch-friendly reorder arrows
+// TaskCardV4.jsx — 任務卡片（純呈現，拖曳邏輯由 TaskList 處理）
 import { useState } from 'react'
 import { COLOR } from '../styles/tokens.js'
 
 const BADGE_ICON = '/assets/little-hero-v4/ui/star.webp'
 
-function ArrowButton({ dir, disabled, onClick, label }) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={label}
-      style={{
-        width: 38,
-        height: 36,
-        border: 'none',
-        borderRadius: 12,
-        background: disabled ? 'transparent' : '#EAD9BE',
-        color: disabled ? '#D8CFBE' : '#8A6A3A',
-        fontSize: 16,
-        fontWeight: 900,
-        cursor: disabled ? 'default' : 'pointer',
-        fontFamily: 'inherit',
-        padding: 0,
-        lineHeight: 1,
-      }}
-    >
-      {dir === 'up' ? '▲' : '▼'}
-    </button>
-  )
-}
-
-export default function TaskCardV4({ task, onComplete, onMoveUp, onMoveDown, canMoveUp, canMoveDown }) {
+export default function TaskCardV4({ task, onComplete }) {
   const [hovering, setHovering] = useState(false)
 
   return (
@@ -54,10 +28,7 @@ export default function TaskCardV4({ task, onComplete, onMoveUp, onMoveDown, can
       )}
 
       {!task.done && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flexShrink: 0 }}>
-          <ArrowButton dir="up" disabled={!canMoveUp} onClick={onMoveUp} label={`把${task.label}往上移`} />
-          <ArrowButton dir="down" disabled={!canMoveDown} onClick={onMoveDown} label={`把${task.label}往下移`} />
-        </div>
+        <div className="v3-card-grip" aria-hidden="true">⠿</div>
       )}
 
       <div className="v3-card-icon" style={{

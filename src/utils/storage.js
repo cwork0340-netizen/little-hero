@@ -1,8 +1,11 @@
-// ── localStorage helpers（含 schema 版本與遷移）──
-import { makeTasks, DEFAULT_REWARDS } from '../data/tasks.js'
+import { DEFAULT_REWARDS, TASK_ICON_CHOICES, makeTasks } from '../data/tasks.js'
 
 const KEY = 'little-hero-v1'
-export const SCHEMA_VERSION = 2
+export const SCHEMA_VERSION = 4
+
+export const DEFAULT_PARENTS = [
+  { id: 1, name: '家長 1', pin: '1234' },
+]
 
 export function todayStr(d = new Date()) {
   const y = d.getFullYear()
@@ -17,33 +20,61 @@ export function yesterdayStr() {
   return todayStr(d)
 }
 
-// 舊資料缺欄位時補預設值；壞到不能用就整個丟掉重來，絕不讓 App 白畫面
-function migrateChild(c, idx) {
-  if (!c || typeof c !== 'object' || !c.name) return null
-  const line = c.line === 'boy' || c.line === 'girl' ? c.line : (c.avatar === '👦' ? 'boy' : 'girl')
+function isReadableText(value) {
+  return typeof value === 'string' && value.trim() && !/[�]/.test(value)
+}
+
+function normalizeTask(task, index) {
+  const fallback = makeTasks()[index % makeTasks().length]
   return {
-    id:     c.id ?? idx + 1,
-    name:   String(c.name),
-    avatar: c.avatar || (line === 'boy' ? '👦' : '👧'),
+    id: Number.isFinite(task?.id) ? task.id : index + 1,
+    icon: typeof task?.icon === 'string' && task.icon.startsWith('/assets/')
+      ? task.icon.replace(/\.png$/, '.webp')
+      : fallback.icon,
+    label: isReadableText(task?.label) ? task.label.trim() : fallback.label,
+    hint: isReadableText(task?.hint) ? task.hint.trim() : fallback.hint,
+    points: Number.isFinite(task?.points) ? task.points : fallback.points,
+    done: Boolean(task?.done),
+  }
+}
+
+function migrateChild(child, index) {
+  if (!child || typeof child !== 'object') return null
+  const line = child.line === 'boy' || child.line === 'girl' ? child.line : index % 2 ? 'boy' : 'girl'
+  const tasks = Array.isArray(child.tasks) && child.tasks.length
+    ? child.tasks.map(normalizeTask)
+    : makeTasks()
+
+  return {
+    id: Number.isFinite(child.id) ? child.id : index + 1,
+    name: isReadableText(child.name) ? child.name.trim() : (index % 2 ? '小安' : '小米'),
     line,
-    seasonOverride: c.seasonOverride ?? null,
-    badges: Number.isFinite(c.badges) ? c.badges : 0,
-    streak: Number.isFinite(c.streak) ? c.streak : 0,
-    totalPoints: Number.isFinite(c.totalPoints) ? c.totalPoints : 0,
-    lastPlayedDate:   c.lastPlayedDate   || null,
-    lastCompletedDate: c.lastCompletedDate || null,
-    badgeAwardedDate:  c.badgeAwardedDate  || null,
-    history: Array.isArray(c.history) ? c.history : [],
-    tasks: Array.isArray(c.tasks) && c.tasks.length
-      ? c.tasks.filter(t => t && t.label).map((t, i) => ({
-          id: t.id ?? i + 1,
-          // 舊版存的 .png 路徑一律轉成 .webp（圖檔已全面壓縮改格式）
-          icon: typeof t.icon === 'string' ? t.icon.replace(/\.png$/, '.webp') : '⭐',
-          label: String(t.label),
-          points: Number.isFinite(t.points) ? t.points : 10,
-          done: !!t.done,
-        }))
-      : makeTasks(),
+    badges: Number.isFinite(child.badges) ? child.badges : 0,
+    streak: Number.isFinite(child.streak) ? child.streak : 0,
+    totalPoints: Number.isFinite(child.totalPoints) ? child.totalPoints : 0,
+    lastPlayedDate: child.lastPlayedDate || null,
+    lastCompletedDate: child.lastCompletedDate || null,
+    badgeAwardedDate: child.badgeAwardedDate || null,
+    history: Array.isArray(child.history) ? child.history : [],
+    tasks,
+  }
+}
+
+function normalizeReward(reward, index) {
+  const fallback = DEFAULT_REWARDS[index % DEFAULT_REWARDS.length]
+  return {
+    id: Number.isFinite(reward?.id) ? reward.id : index + 1,
+    icon: isReadableText(reward?.icon) ? reward.icon : fallback.icon,
+    label: isReadableText(reward?.label) ? reward.label.trim() : fallback.label,
+    badges: Number.isFinite(reward?.badges) && reward.badges > 0 ? reward.badges : fallback.badges,
+  }
+}
+
+function normalizeParent(parent, index, fallbackPin = '1234') {
+  return {
+    id: Number.isFinite(parent?.id) ? parent.id : index + 1,
+    name: isReadableText(parent?.name) ? parent.name.trim() : `家長 ${index + 1}`,
+    pin: /^\d{4}$/.test(parent?.pin) ? parent.pin : fallbackPin,
   }
 }
 
@@ -55,14 +86,19 @@ export function loadState() {
     if (!state || !Array.isArray(state.children)) return null
     const children = state.children.map(migrateChild).filter(Boolean)
     if (!children.length) return null
-    const rewards = Array.isArray(state.rewards) && state.rewards.length
-      ? state.rewards.filter(r => r && r.label && Number.isFinite(r.badges))
-          .map((r, i) => ({ id: r.id ?? i + 1, icon: r.icon || '🎁', label: String(r.label), badges: r.badges }))
-      : DEFAULT_REWARDS
+
+    const legacyPin = /^\d{4}$/.test(state.parentPin) ? state.parentPin : '1234'
+    const parents = Array.isArray(state.parents) && state.parents.length
+      ? state.parents.map((parent, index) => normalizeParent(parent, index, legacyPin))
+      : [{ ...DEFAULT_PARENTS[0], pin: legacyPin }]
+
     return {
       version: SCHEMA_VERSION,
-      parentPin: /^\d{4}$/.test(state.parentPin) ? state.parentPin : '1234',
-      rewards,
+      parentPin: parents[0]?.pin || legacyPin,
+      parents,
+      rewards: Array.isArray(state.rewards) && state.rewards.length
+        ? state.rewards.map(normalizeReward)
+        : DEFAULT_REWARDS,
       children,
     }
   } catch {
@@ -74,10 +110,24 @@ export function saveState(state) {
   try {
     localStorage.setItem(KEY, JSON.stringify({ ...state, version: SCHEMA_VERSION }))
   } catch {
-    // quota exceeded or private mode — fail silently
+    // Ignore quota and private browsing failures.
   }
 }
 
 export function clearState() {
   localStorage.removeItem(KEY)
+}
+
+export function iconForReward(reward) {
+  const map = {
+    book: '/assets/little-hero-v4/ui/chest_open.webp',
+    snack: '/assets/little-hero-v4/icons/tasks/breakfast.webp',
+    movie: '/assets/little-hero-v4/ui/chest_closed.webp',
+    park: '/assets/little-hero-v4/icons/tasks/water_flowers.webp',
+  }
+  return map[reward?.icon] || '/assets/little-hero-v4/ui/chest_closed.webp'
+}
+
+export function nextTaskIcon(index) {
+  return TASK_ICON_CHOICES[index % TASK_ICON_CHOICES.length]
 }

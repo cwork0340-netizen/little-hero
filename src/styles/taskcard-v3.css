@@ -98,6 +98,41 @@
   font-family: inherit;
 }
 
+.v3-card-grip {
+  flex-shrink: 0;
+  width: 22px;
+  text-align: center;
+  font-size: 20px;
+  line-height: 1;
+  color: #C9BBA3;
+  user-select: none;
+}
+
+.v3-task-item { transition: transform .15s ease; }
+.is-dragging {
+  z-index: 5;
+  position: relative;
+  transition: none;
+}
+.is-dragging .v3-card {
+  box-shadow: 0 18px 32px rgba(62,62,62,.22) !important;
+  border-color: #72C27A !important;
+}
+
+.v3-drop-before {
+  position: relative;
+}
+.v3-drop-before::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 8px;
+  right: 8px;
+  height: 4px;
+  border-radius: 4px;
+  background: #72C27A;
+}
+
 @media (max-width: 380px) {
   .v3-card { padding: 12px 12px; }
 }

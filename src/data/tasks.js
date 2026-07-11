@@ -1,61 +1,74 @@
 const V4 = '/assets/little-hero-v4'
 const ICON = (name) => `${V4}/icons/tasks/${name}.webp`
 
-// ── Default task template ──────────────────────
-export const TASK_META = [
-  { icon: ICON('toothbrush'), label: '刷牙',     points: 10 },
-  { icon: ICON('homework'),   label: '功課',     points: 15 },
-  { icon: ICON('tidy_toys'),  label: '收玩具',   points: 10 },
-  { icon: ICON('shower'),     label: '洗澡',     points: 10 },
-  { icon: ICON('backpack'),   label: '上學準備', points: 5  },
+export const TASK_ICON_CHOICES = [
+  ICON('toothbrush'),
+  ICON('backpack'),
+  ICON('homework'),
+  ICON('tidy_toys'),
+  ICON('reading'),
+  ICON('shower'),
+  ICON('dishes'),
+  ICON('breakfast'),
+  ICON('folded_clothes'),
+  ICON('water_cup'),
+  ICON('water_flowers'),
+  ICON('pet_bowl'),
 ]
 
-// 家長新增任務時可選的圖示
-export const TASK_ICON_CHOICES = [
-  ICON('toothbrush'), ICON('homework'), ICON('tidy_toys'), ICON('shower'),
-  ICON('backpack'), ICON('reading'), ICON('dishes'), ICON('shoes'),
-  ICON('folded_clothes'), ICON('water_flowers'), ICON('watering_can'),
-  ICON('pet_bowl'), ICON('breakfast'), ICON('water_cup'), ICON('heart_outline'),
+export const TASK_META = [
+  {
+    icon: ICON('toothbrush'),
+    label: '刷牙洗臉',
+    hint: '照顧好自己，是今天的第一步。',
+    points: 10,
+  },
+  {
+    icon: ICON('backpack'),
+    label: '整理書包',
+    hint: '把需要的東西放進去。',
+    points: 10,
+  },
+  {
+    icon: ICON('homework'),
+    label: '完成作業',
+    hint: '先做一小段也可以。',
+    points: 15,
+  },
+  {
+    icon: ICON('tidy_toys'),
+    label: '收好玩具',
+    hint: '讓房間變得好走路。',
+    points: 10,
+  },
+  {
+    icon: ICON('reading'),
+    label: '閱讀 10 分鐘',
+    hint: '挑一本喜歡的書就好。',
+    points: 10,
+  },
+]
+
+export const DEFAULT_REWARDS = [
+  { id: 1, icon: 'book', label: '睡前多一本故事書', badges: 3 },
+  { id: 2, icon: 'snack', label: '週末選一份小點心', badges: 5 },
+  { id: 3, icon: 'movie', label: '家庭電影時間', badges: 8 },
+  { id: 4, icon: 'park', label: '假日去公園玩', badges: 10 },
 ]
 
 export function makeTasks() {
-  return TASK_META.map((m, i) => ({
-    id:     i + 1,
-    icon:   m.icon,
-    label:  m.label,
-    points: m.points,
-    done:   false,
+  return TASK_META.map((task, index) => ({
+    id: index + 1,
+    done: false,
+    ...task,
   }))
 }
 
-// ── Achievements（依真實資料判定解鎖）──────────
-export function getAchievements(child) {
-  return [
-    { id: 'first',   icon: ICON('heart_filled'),  label: '第一次完成所有任務', unlocked: child.badges >= 1 },
-    { id: '3day',    icon: '🔥',                  label: '連續 3 天完成',      unlocked: child.streak >= 3 },
-    { id: '7day',    icon: '🏆',                  label: '連續 7 天完成',      unlocked: child.streak >= 7 },
-    { id: 'house',   icon: '🏡',                  label: '第一棟房子蓋好了',    unlocked: child.badges >= 1 },
-    { id: 'collect', icon: ICON('heart_outline'), label: '集滿 5 枚徽章',       unlocked: child.badges >= 5 },
-    { id: 'points',  icon: '⭐',                  label: '累積 300 點',         unlocked: (child.totalPoints || 0) >= 300 },
-  ]
-}
-
-// ── Default rewards ────────────────────────────
-export const DEFAULT_REWARDS = [
-  { id: 1, icon: '🍦', label: '吃冰淇淋',   badges: 3 },
-  { id: 2, icon: '🎬', label: '看電影',      badges: 5 },
-  { id: 3, icon: '🧸', label: '新玩具（小）', badges: 7 },
-  { id: 4, icon: '🎡', label: '親子活動',    badges: 10 },
-]
-
-// ── Initial children data（真實從 0 開始）───────
-export function makeChild(id, name, line) {
+export function makeChild(id, name, line = 'girl') {
   return {
     id,
     name,
-    avatar: line === 'boy' ? '👦' : '👧',
     line,
-    seasonOverride: null,
     badges: 0,
     streak: 0,
     totalPoints: 0,
@@ -69,5 +82,5 @@ export function makeChild(id, name, line) {
 
 export const CHILDREN_INIT = [
   makeChild(1, '小米', 'girl'),
-  makeChild(2, '小宇', 'boy'),
+  makeChild(2, '小安', 'boy'),
 ]

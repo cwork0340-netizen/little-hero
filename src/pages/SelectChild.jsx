@@ -1,6 +1,6 @@
 // pages/SelectChild.jsx
 import WoodSign from '../components/WoodSign.jsx'
-import { getHeroLevel } from '../data/hero.js'
+import { AVATAR } from '../data/avatar.js'
 import { COLOR } from '../styles/tokens.js'
 
 export default function SelectChild({ children, onSelect, onAddChild }) {
@@ -19,7 +19,7 @@ export default function SelectChild({ children, onSelect, onAddChild }) {
 
       <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', justifyContent: 'center' }}>
         {children.map(ch => {
-          const level = getHeroLevel(ch.line, ch.badges)
+          const avatar = AVATAR[ch.line] || AVATAR.boy
           return (
             <button
               key={ch.id}
@@ -53,7 +53,7 @@ export default function SelectChild({ children, onSelect, onAddChild }) {
                 justifyContent: 'center',
                 boxShadow: '0 4px 12px rgba(0,0,0,.12)',
               }}>
-                <img src={level.idle} alt={ch.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
+                <img src={avatar.idle} alt={ch.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
               </div>
               <div style={{ fontSize: 19, fontWeight: 900, color: COLOR.ink }}>{ch.name}</div>
               <div style={{ display: 'flex', gap: 12, fontSize: 12, color: COLOR.slate, fontWeight: 700, alignItems: 'center' }}>
@@ -65,16 +65,6 @@ export default function SelectChild({ children, onSelect, onAddChild }) {
                   <img src="/assets/little-hero-v4/ui/star.webp" alt="" style={{ width: 14, height: 14 }} />
                   {ch.badges} 枚
                 </span>
-              </div>
-              <div style={{
-                fontSize: 11,
-                color: '#fff',
-                fontWeight: 800,
-                background: COLOR.green,
-                borderRadius: 10,
-                padding: '2px 10px',
-              }}>
-                {level.name}
               </div>
             </button>
           )
