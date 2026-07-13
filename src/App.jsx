@@ -20,7 +20,7 @@ function applyDailyReset(child) {
     ...child,
     lastPlayedDate: today,
     streak: keepStreak ? child.streak : 0,
-    tasks: child.tasks.map((task) => ({ ...task, done: false })),
+    tasks: [],
   }
 }
 
@@ -84,6 +84,7 @@ function TodayView({
   onOpenRewards,
   onSwitchChild,
   onAddTask,
+  onDeleteTask,
   onReorderTasks,
 }) {
   const [customTask, setCustomTask] = useState('')
@@ -222,9 +223,14 @@ function TodayView({
                 <strong>{task.label}</strong>
                 <small>{task.hint || '完成後點一下右邊的圈圈。'}</small>
               </span>
-              <button className="lh-check" onClick={() => onCompleteTask(task.id)} aria-label={`完成 ${task.label}`}>
-                {task.done ? '✓' : ''}
-              </button>
+              <div className="lh-task-actions">
+                <button className="lh-check" onClick={() => onCompleteTask(task.id)} aria-label={`完成 ${task.label}`}>
+                  {task.done ? '✓' : ''}
+                </button>
+                <button className="lh-task-delete" onClick={() => onDeleteTask(child.id, task.id)} aria-label={`刪除 ${task.label}`}>
+                  ×
+                </button>
+              </div>
             </article>
           ))}
         </div>
@@ -718,6 +724,7 @@ export default function App() {
           child={child}
           onCompleteTask={completeTask}
           onAddTask={addTask}
+          onDeleteTask={deleteTask}
           onReorderTasks={reorderTasks}
           onOpenRewards={() => setScreen('rewards')}
           onOpenParent={() => setScreen('pin')}

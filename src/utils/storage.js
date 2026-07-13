@@ -1,7 +1,7 @@
 import { DEFAULT_REWARDS, TASK_ICON_CHOICES, makeTasks } from '../data/tasks.js'
 
 const KEY = 'little-hero-v1'
-export const SCHEMA_VERSION = 5
+export const SCHEMA_VERSION = 6
 
 export const DEFAULT_PARENTS = [
   { id: 1, name: '家長 1', pin: '1234' },
@@ -45,10 +45,12 @@ function normalizeTask(task, index) {
   }
 }
 
-function migrateChild(child, index) {
+function migrateChild(child, index, options = {}) {
   if (!child || typeof child !== 'object') return null
   const line = child.line === 'boy' || child.line === 'girl' ? child.line : index % 2 ? 'boy' : 'girl'
-  const tasks = Array.isArray(child.tasks) && child.tasks.length
+  const tasks = options.clearTasks
+    ? []
+    : Array.isArray(child.tasks) && child.tasks.length
     ? child.tasks.map(normalizeTask)
     : makeTasks()
 
@@ -91,7 +93,8 @@ export function loadState() {
     if (!raw) return null
     const state = JSON.parse(raw)
     if (!state || !Array.isArray(state.children)) return null
-    const children = state.children.map(migrateChild).filter(Boolean)
+    const shouldClearTasks = Number(state.version || 0) < SCHEMA_VERSION
+    const children = state.children.map((child, index) => migrateChild(child, index, { clearTasks: shouldClearTasks })).filter(Boolean)
     if (!children.length) return null
 
     const legacyPin = /^\d{4}$/.test(state.parentPin) ? state.parentPin : '1234'
