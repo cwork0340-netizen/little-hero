@@ -27,8 +27,12 @@ function isReadableText(value) {
 }
 
 function normalizeTask(task, index) {
-  const fallbackTasks = makeTasks()
-  const fallback = fallbackTasks[index % fallbackTasks.length]
+  const fallback = {
+    icon: TASK_ICON_CHOICES[index % TASK_ICON_CHOICES.length],
+    label: `自訂任務 ${index + 1}`,
+    hint: '這是保留下來的任務。',
+    points: 10,
+  }
   return {
     id: Number.isFinite(task?.id) ? task.id : index + 1,
     icon: typeof task?.icon === 'string' && task.icon.startsWith('/assets/')

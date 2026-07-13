@@ -79,11 +79,7 @@ export const DEFAULT_REWARDS = [
 ]
 
 export function makeTasks() {
-  return TASK_META.map((task, index) => ({
-    id: index + 1,
-    done: false,
-    ...task,
-  }))
+  return []
 }
 
 export function makeChild(id, name, line = 'girl') {
