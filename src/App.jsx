@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AVATAR, LINE_LABELS } from './data/avatar.js'
-import { CHILDREN_INIT, DEFAULT_REWARDS, TASK_ICON_CHOICES, makeChild } from './data/tasks.js'
+import {
+  CHILDREN_INIT,
+  DEFAULT_REWARDS,
+  QUICK_TASKS,
+  TASK_ICON_CHOICES,
+  makeChild,
+} from './data/tasks.js'
 import { DEFAULT_PARENTS, iconForReward, loadState, saveState, todayStr, yesterdayStr } from './utils/storage.js'
 
 const STAR_ICON = '/assets/little-hero-v4/ui/star.webp'
@@ -25,9 +31,21 @@ function clampNumber(value, min, max) {
 }
 
 function todayMessage(done, total) {
+  if (total === 0) return '今天還沒有任務，可以自己新增一件小事。'
   if (done === total) return '今天的小任務都完成了，做得很好。'
   if (done === 0) return '慢慢來，一件一件完成就很好。'
   return `已經完成 ${done} 件了，剩下 ${total - done} 件。`
+}
+
+function createTask(task) {
+  return {
+    id: Date.now() + Math.floor(Math.random() * 1000),
+    icon: task.icon || TASK_ICON_CHOICES[0],
+    label: task.label,
+    hint: task.hint || '這是自己加上的小任務。',
+    points: Number.isFinite(task.points) ? task.points : 10,
+    done: false,
+  }
 }
 
 function ScreenButton({ active, children, onClick }) {
@@ -59,11 +77,54 @@ function ChildSwitcher({ childrenList, activeId, onSelect, onAdd }) {
   )
 }
 
-function TodayView({ child, onCompleteTask, onOpenParent, onOpenRewards, onSwitchChild }) {
+function TodayView({
+  child,
+  onCompleteTask,
+  onOpenParent,
+  onOpenRewards,
+  onSwitchChild,
+  onAddTask,
+  onReorderTasks,
+}) {
+  const [customTask, setCustomTask] = useState('')
+  const [dragId, setDragId] = useState(null)
+  const [overId, setOverId] = useState(null)
   const avatar = AVATAR[child.line] || AVATAR.girl
   const done = child.tasks.filter((task) => task.done).length
-  const total = child.tasks.length || 1
-  const percent = Math.round((done / total) * 100)
+  const total = child.tasks.length
+  const percent = total ? Math.round((done / total) * 100) : 0
+
+  function submitCustomTask() {
+    const label = customTask.trim()
+    if (!label) return
+    onAddTask(child.id, createTask({ label }))
+    setCustomTask('')
+  }
+
+  function addQuickTask(task) {
+    onAddTask(child.id, createTask(task))
+  }
+
+  function startDrag(taskId, event) {
+    setDragId(taskId)
+    setOverId(taskId)
+    event.currentTarget.setPointerCapture?.(event.pointerId)
+  }
+
+  function moveDrag(event) {
+    if (!dragId) return
+    event.preventDefault()
+    const target = document.elementFromPoint(event.clientX, event.clientY)?.closest('[data-task-id]')
+    if (!target) return
+    const nextOverId = Number(target.dataset.taskId)
+    if (Number.isFinite(nextOverId)) setOverId(nextOverId)
+  }
+
+  function endDrag() {
+    if (dragId && overId && dragId !== overId) onReorderTasks(child.id, dragId, overId)
+    setDragId(null)
+    setOverId(null)
+  }
 
   return (
     <div className="lh-daily-grid">
@@ -88,6 +149,30 @@ function TodayView({ child, onCompleteTask, onOpenParent, onOpenRewards, onSwitc
           <div className="lh-progress-label">{done} / {total} 完成</div>
         </section>
 
+        <section className="lh-kid-add-card">
+          <div>
+            <div className="lh-eyebrow">自己加一件事</div>
+            <h2>今天還想做什麼？</h2>
+          </div>
+          <div className="lh-kid-add-row">
+            <input
+              value={customTask}
+              onChange={(event) => setCustomTask(event.target.value)}
+              onKeyDown={(event) => event.key === 'Enter' && submitCustomTask()}
+              placeholder="例如：練鋼琴 10 分鐘"
+            />
+            <button onClick={submitCustomTask}>加入</button>
+          </div>
+          <div className="lh-quick-list" aria-label="任務快選">
+            {QUICK_TASKS.map((task) => (
+              <button key={task.label} onClick={() => addQuickTask(task)}>
+                <img src={task.icon} alt="" />
+                <span>{task.label}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+
         <div className="lh-stats">
           <div className="lh-stat-card">
             <img src={STAR_ICON} alt="" />
@@ -108,25 +193,39 @@ function TodayView({ child, onCompleteTask, onOpenParent, onOpenRewards, onSwitc
         <div className="lh-section-head">
           <div>
             <div className="lh-eyebrow">今日清單</div>
-            <h2>一件一件來</h2>
+            <h2>拖曳把手可以換順序</h2>
           </div>
-          <span className={done === total ? 'lh-status is-done' : 'lh-status'}>{percent}%</span>
+          <span className={done === total && total > 0 ? 'lh-status is-done' : 'lh-status'}>{percent}%</span>
         </div>
 
-        <div className="lh-task-list">
+        <div className="lh-task-list" onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={endDrag}>
           {child.tasks.map((task) => (
-            <button
+            <article
               key={task.id}
-              className={task.done ? 'lh-task is-done' : 'lh-task'}
-              onClick={(event) => onCompleteTask(task.id, event)}
+              data-task-id={task.id}
+              className={[
+                'lh-task',
+                task.done ? 'is-done' : '',
+                dragId === task.id ? 'is-dragging' : '',
+                overId === task.id && dragId !== task.id ? 'is-drop-target' : '',
+              ].filter(Boolean).join(' ')}
             >
+              <button
+                className="lh-drag-handle"
+                onPointerDown={(event) => startDrag(task.id, event)}
+                aria-label={`拖曳 ${task.label}`}
+              >
+                ⋮⋮
+              </button>
               <span className="lh-task-icon"><img src={task.icon} alt="" /></span>
               <span className="lh-task-text">
                 <strong>{task.label}</strong>
                 <small>{task.hint || '完成後點一下右邊的圈圈。'}</small>
               </span>
-              <span className="lh-check">{task.done ? '✓' : ''}</span>
-            </button>
+              <button className="lh-check" onClick={() => onCompleteTask(task.id)} aria-label={`完成 ${task.label}`}>
+                {task.done ? '✓' : ''}
+              </button>
+            </article>
           ))}
         </div>
       </main>
@@ -199,7 +298,7 @@ function PinView({ parents, onUnlock, onBack }) {
       <div className="lh-pin-card">
         <div className="lh-eyebrow">家長設定</div>
         <h1>輸入 PIN</h1>
-        <p>{wrong ? 'PIN 不正確，請再試一次。' : '預設 PIN 是 1234。'}</p>
+        <p>{wrong ? 'PIN 不正確，請再試一次。' : '請輸入任一位家長的 4 位數 PIN。'}</p>
         <div className={wrong ? 'lh-pin-dots is-wrong' : 'lh-pin-dots'}>
           {[0, 1, 2, 3].map((i) => <span key={i} className={i < value.length ? 'is-filled' : ''} />)}
         </div>
@@ -245,11 +344,11 @@ function ParentView({
 
   function submitTask() {
     if (!newTask.label.trim()) return
-    onAddTask(child.id, {
+    onAddTask(child.id, createTask({
       ...newTask,
       label: newTask.label.trim(),
       hint: newTask.hint.trim() || '完成後點一下右邊的圈圈。',
-    })
+    }))
     setNewTask({ label: '', hint: '', icon: TASK_ICON_CHOICES[0] })
   }
 
@@ -452,7 +551,6 @@ function ParentView({
             </div>
           </>
         )}
-
       </main>
     </div>
   )
@@ -476,7 +574,7 @@ export default function App() {
   const [state, setState] = useState(() => {
     const saved = loadState()
     const base = saved || { parentPin: '1234', parents: DEFAULT_PARENTS, rewards: DEFAULT_REWARDS, children: CHILDREN_INIT }
-    return { ...base, children: base.children.map(applyDailyReset) }
+    return { ...base, children: ensureFeifei(base.children).map(applyDailyReset) }
   })
   const [activeId, setActiveId] = useState(() => state.children[0]?.id || 1)
   const [screen, setScreen] = useState('today')
@@ -541,20 +639,21 @@ export default function App() {
   }
 
   function addTask(childId, task) {
+    setChildren((current) => current.map((item) => (
+      item.id === childId ? { ...item, tasks: [...item.tasks, task] } : item
+    )))
+  }
+
+  function reorderTasks(childId, fromId, toId) {
     setChildren((current) => current.map((item) => {
       if (item.id !== childId) return item
-      return {
-        ...item,
-        tasks: [
-          ...item.tasks,
-          {
-            id: Date.now(),
-            done: false,
-            points: 10,
-            ...task,
-          },
-        ],
-      }
+      const tasks = [...item.tasks]
+      const fromIndex = tasks.findIndex((task) => task.id === fromId)
+      const toIndex = tasks.findIndex((task) => task.id === toId)
+      if (fromIndex < 0 || toIndex < 0) return item
+      const [moved] = tasks.splice(fromIndex, 1)
+      tasks.splice(toIndex, 0, moved)
+      return { ...item, tasks }
     }))
   }
 
@@ -618,6 +717,8 @@ export default function App() {
         <TodayView
           child={child}
           onCompleteTask={completeTask}
+          onAddTask={addTask}
+          onReorderTasks={reorderTasks}
           onOpenRewards={() => setScreen('rewards')}
           onOpenParent={() => setScreen('pin')}
           onSwitchChild={() => setScreen('children')}
@@ -686,4 +787,10 @@ export default function App() {
       {celebrating && <Celebration child={child} onClose={() => setCelebrating(false)} />}
     </div>
   )
+}
+
+function ensureFeifei(children) {
+  if (children.some((child) => child.name === '菲菲')) return children
+  const nextId = Math.max(0, ...children.map((child) => child.id || 0)) + 1
+  return [...children, makeChild(nextId, '菲菲', 'girl')]
 }

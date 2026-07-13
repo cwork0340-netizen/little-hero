@@ -49,6 +49,28 @@ export const TASK_META = [
   },
 ]
 
+export const QUICK_TASKS = [
+  ...TASK_META,
+  {
+    icon: ICON('shower'),
+    label: '洗澡',
+    hint: '把身體洗乾淨，準備放鬆。',
+    points: 10,
+  },
+  {
+    icon: ICON('dishes'),
+    label: '幫忙收碗',
+    hint: '把自己的碗盤放到水槽。',
+    points: 10,
+  },
+  {
+    icon: ICON('water_cup'),
+    label: '喝水',
+    hint: '記得補充一杯水。',
+    points: 5,
+  },
+]
+
 export const DEFAULT_REWARDS = [
   { id: 1, icon: 'book', label: '睡前多一本故事書', badges: 3 },
   { id: 2, icon: 'snack', label: '週末選一份小點心', badges: 5 },
@@ -83,4 +105,5 @@ export function makeChild(id, name, line = 'girl') {
 export const CHILDREN_INIT = [
   makeChild(1, '小米', 'girl'),
   makeChild(2, '小安', 'boy'),
+  makeChild(3, '菲菲', 'girl'),
 ]

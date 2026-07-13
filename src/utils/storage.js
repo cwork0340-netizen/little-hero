@@ -1,7 +1,7 @@
 import { DEFAULT_REWARDS, TASK_ICON_CHOICES, makeTasks } from '../data/tasks.js'
 
 const KEY = 'little-hero-v1'
-export const SCHEMA_VERSION = 4
+export const SCHEMA_VERSION = 5
 
 export const DEFAULT_PARENTS = [
   { id: 1, name: '家長 1', pin: '1234' },
@@ -21,11 +21,14 @@ export function yesterdayStr() {
 }
 
 function isReadableText(value) {
-  return typeof value === 'string' && value.trim() && !/[�]/.test(value)
+  return typeof value === 'string'
+    && value.trim().length > 0
+    && !/[�嚙稽摰蝡銝憭隞撌閮雿敺]/.test(value)
 }
 
 function normalizeTask(task, index) {
-  const fallback = makeTasks()[index % makeTasks().length]
+  const fallbackTasks = makeTasks()
+  const fallback = fallbackTasks[index % fallbackTasks.length]
   return {
     id: Number.isFinite(task?.id) ? task.id : index + 1,
     icon: typeof task?.icon === 'string' && task.icon.startsWith('/assets/')

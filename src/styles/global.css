@@ -270,6 +270,80 @@ img {
   margin-top: auto;
 }
 
+.lh-kid-add-card {
+  padding: 16px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: var(--soft-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lh-kid-add-card h2 {
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.lh-kid-add-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.lh-kid-add-row input {
+  min-height: 48px;
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  padding: 0 14px;
+  color: var(--ink);
+  background: #fff;
+  outline: none;
+  font-weight: 800;
+}
+
+.lh-kid-add-row button {
+  min-height: 48px;
+  border: 0;
+  border-radius: 16px;
+  padding: 0 16px;
+  color: #fff;
+  background: var(--green);
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.lh-quick-list {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.lh-quick-list button {
+  min-width: 104px;
+  min-height: 46px;
+  border: 0;
+  border-radius: 16px;
+  padding: 7px 10px;
+  color: var(--ink);
+  background: #fff7e4;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.lh-quick-list img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
 .lh-section-head {
   display: flex;
   align-items: center;
@@ -313,15 +387,41 @@ img {
   background: rgba(255, 255, 255, 0.9);
   box-shadow: var(--soft-shadow);
   display: grid;
-  grid-template-columns: 56px minmax(0, 1fr) 46px;
+  grid-template-columns: 32px 56px minmax(0, 1fr) 46px;
   gap: 13px;
   align-items: center;
   text-align: left;
-  cursor: pointer;
 }
 
 .lh-task.is-done {
   background: var(--green-soft);
+}
+
+.lh-task.is-dragging {
+  opacity: 0.74;
+  transform: scale(0.99);
+}
+
+.lh-task.is-drop-target {
+  outline: 3px solid rgba(104, 184, 117, 0.45);
+}
+
+.lh-drag-handle {
+  width: 32px;
+  height: 54px;
+  border: 0;
+  border-radius: 14px;
+  color: #9a8a78;
+  background: #f5eddc;
+  cursor: grab;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0;
+  touch-action: none;
+}
+
+.lh-drag-handle:active {
+  cursor: grabbing;
 }
 
 .lh-task-icon {
@@ -370,6 +470,7 @@ img {
   place-items: center;
   font-size: 21px;
   font-weight: 900;
+  cursor: pointer;
 }
 
 .lh-task.is-done .lh-check {
@@ -878,9 +979,14 @@ img {
 
   .lh-task {
     min-height: 84px;
-    grid-template-columns: 50px minmax(0, 1fr) 42px;
+    grid-template-columns: 30px 50px minmax(0, 1fr) 42px;
     gap: 10px;
     padding: 12px;
+  }
+
+  .lh-drag-handle {
+    width: 30px;
+    height: 50px;
   }
 
   .lh-task-icon {
